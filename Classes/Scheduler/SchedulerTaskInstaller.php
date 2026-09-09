@@ -25,6 +25,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 final class SchedulerTaskInstaller
 {
+    private const LL = 'LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:';
+
     public const COMMAND = 'caretaker2:push';
 
     private const TABLE = 'tx_scheduler_task';
@@ -76,7 +78,7 @@ final class SchedulerTaskInstaller
         }
 
         if ($this->exists()) {
-            throw new SchedulerTaskException('Es gibt bereits einen Task für diesen Befehl.');
+            throw new SchedulerTaskException($this->ll('error.taskExists'));
         }
 
         $task = GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Task\ExecuteSchedulableCommandTask::class);
@@ -115,7 +117,7 @@ final class SchedulerTaskInstaller
                 )->add($task)
                 : GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Scheduler::class)->addTask($task);
         } catch (\Throwable $e) {
-            throw new SchedulerTaskException('Der Task ließ sich nicht anlegen: ' . $e->getMessage(), 0, $e);
+            throw new SchedulerTaskException($this->ll('error.taskFailed', $e->getMessage()), 0, $e);
         }
 
         if ($saved === false) {
@@ -123,7 +125,7 @@ final class SchedulerTaskInstaller
             // backend user. In the module there is one; on the console the
             // command has to provide it.
             throw new SchedulerTaskException(
-                'Der Task ließ sich nicht anlegen. Fehlt ein angemeldeter Backend-Benutzer?'
+                $this->ll('error.taskNoUser')
             );
         }
     }
@@ -144,5 +146,15 @@ final class SchedulerTaskInstaller
         $start = mktime(3, $minute, 0) ?: time();
 
         return $start < time() ? $start + self::INTERVAL_SECONDS : $start;
+    }
+
+    /**
+     * @param string|int ...$args
+     */
+    private function ll(string $key, ...$args): string
+    {
+        $text = $GLOBALS['LANG']->sL(self::LL . $key);
+
+        return $args === [] ? $text : vsprintf($text, $args);
     }
 }

@@ -15,6 +15,8 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  */
 final class HubClient
 {
+    private const LL = 'LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:';
+
     private const TIMEOUT_SECONDS = 20;
 
     /** Ein eigener Prefix, damit die API nicht mit einer echten Seite kollidiert. */
@@ -49,7 +51,7 @@ final class HubClient
         $token = $response['token'] ?? null;
         if (!is_string($token) || $token === '') {
             throw new HubConnectionException(
-                'Der Hub hat kein Token zurückgegeben. Ist der Code noch gültig?'
+                $this->ll('error.noToken')
             );
         }
 
@@ -125,5 +127,15 @@ final class HubClient
         }
 
         return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * @param string|int ...$args
+     */
+    private function ll(string $key, ...$args): string
+    {
+        $text = $GLOBALS['LANG']->sL(self::LL . $key);
+
+        return $args === [] ? $text : vsprintf($text, $args);
     }
 }

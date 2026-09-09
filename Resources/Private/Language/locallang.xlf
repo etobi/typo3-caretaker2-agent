@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2026-09-09T00:00:00Z" product-name="caretaker2_agent">
+        <header/>
+        <body>
+            <trans-unit id="module.title">
+                <source>Caretaker2</source>
+            </trans-unit>
+            <trans-unit id="module.description">
+                <source>Connection to the Caretaker2 hub</source>
+            </trans-unit>
+            <trans-unit id="connected.title">
+                <source>Connected</source>
+            </trans-unit>
+            <trans-unit id="connected.body">
+                <source>This instance reports its inventory to %s.</source>
+            </trans-unit>
+            <trans-unit id="connected.managed">
+                <source>The connection is set through environment variables and cannot be changed here.</source>
+            </trans-unit>
+            <trans-unit id="schedule.title">
+                <source>Report daily</source>
+            </trans-unit>
+            <trans-unit id="schedule.exists">
+                <source>A scheduler task for %s is set up. Once the cron job runs, this instance reports on its own.</source>
+            </trans-unit>
+            <trans-unit id="schedule.missing">
+                <source>Without a daily run this instance only reports when somebody presses the button.</source>
+            </trans-unit>
+            <trans-unit id="schedule.create">
+                <source>Create daily scheduler task</source>
+            </trans-unit>
+            <trans-unit id="schedule.unavailable">
+                <source>The scheduler extension is not installed. Alternatively %s can be called from cron directly.</source>
+            </trans-unit>
+            <trans-unit id="button.push">
+                <source>Send data now</source>
+            </trans-unit>
+            <trans-unit id="button.disconnect">
+                <source>Disconnect</source>
+            </trans-unit>
+            <trans-unit id="button.connect">
+                <source>Connect</source>
+            </trans-unit>
+            <trans-unit id="connect.title">
+                <source>Connect to a hub</source>
+            </trans-unit>
+            <trans-unit id="connect.body">
+                <source>Create a code in the hub under Caretaker2 → Instances and enter it here.</source>
+            </trans-unit>
+            <trans-unit id="connect.hubUrl">
+                <source>Hub address</source>
+            </trans-unit>
+            <trans-unit id="connect.code">
+                <source>Code</source>
+            </trans-unit>
+            <trans-unit id="inventory.heading">
+                <source>Inventory</source>
+            </trans-unit>
+            <trans-unit id="inventory.agentVersion">
+                <source>Agent version %s.</source>
+            </trans-unit>
+            <trans-unit id="inventory.column.provider">
+                <source>Provider</source>
+            </trans-unit>
+            <trans-unit id="inventory.column.state">
+                <source>State</source>
+            </trans-unit>
+            <trans-unit id="inventory.show">
+                <source>Show the full inventory</source>
+            </trans-unit>
+            <trans-unit id="message.disconnectManaged">
+                <source>The connection comes from the environment and cannot be cut here.</source>
+            </trans-unit>
+            <trans-unit id="message.disconnected">
+                <source>Disconnected.</source>
+            </trans-unit>
+            <trans-unit id="message.taskCreated">
+                <source>The daily scheduler task has been created.</source>
+            </trans-unit>
+            <trans-unit id="message.credentialsMissing">
+                <source>Both the hub address and the code are needed.</source>
+            </trans-unit>
+            <trans-unit id="message.connectedPushFailed">
+                <source>Connected, but the first push failed: %s</source>
+            </trans-unit>
+            <trans-unit id="message.connected">
+                <source>Connected. The inventory has already been reported.</source>
+            </trans-unit>
+            <trans-unit id="message.pushedStored">
+                <source>Inventory reported. The hub stored a change.</source>
+            </trans-unit>
+            <trans-unit id="message.pushedUnchanged">
+                <source>Inventory reported. Nothing changed, so the hub stores no new state.</source>
+            </trans-unit>
+            <trans-unit id="error.taskExists">
+                <source>There already is a task for this command.</source>
+            </trans-unit>
+            <trans-unit id="error.taskFailed">
+                <source>The task could not be created: %s</source>
+            </trans-unit>
+            <trans-unit id="error.taskNoUser">
+                <source>The task could not be created. Is a backend user missing?</source>
+            </trans-unit>
+            <trans-unit id="error.noToken">
+                <source>The hub returned no token. Is the code still valid?</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

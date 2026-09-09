@@ -25,6 +25,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 final class ConnectionController
 {
+    private const LL = 'LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:';
+
     /** @var ModuleTemplateFactory */
     private $moduleTemplateFactory;
 
@@ -102,10 +104,10 @@ final class ConnectionController
             return $view->renderResponse('Connection/Index');
         }
 
-        // Eigene Hülle ohne <f:layout name="Module">: Das Layout gibt es in v11
-        // nicht, und ein gleichnamiges mitzuliefern würde in v12 und v13 das
-        // des Cores verdrängen. Der Inhalt selbst liegt für beide Wege im
-        // selben Partial.
+        // A shell of our own without <f:layout name="Module">: that layout does
+        // not exist on v11, and shipping one under the same name would displace
+        // the core's on v12 and v13. The content itself lives in the same
+        // partial for both paths.
         $standalone = GeneralUtility::makeInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class);
         $standalone->setTemplateRootPaths(['EXT:caretaker2_agent/Resources/Private/Templates/']);
         $standalone->setPartialRootPaths(['EXT:caretaker2_agent/Resources/Private/Partials/']);
@@ -125,11 +127,11 @@ final class ConnectionController
     {
         if (isset($body['disconnect'])) {
             if ($this->tokenStorage->isManagedByEnvironment()) {
-                return ['Die Verbindung kommt aus der Umgebung und kann hier nicht getrennt werden.', 'warning'];
+                return [$this->ll('message.disconnectManaged'), 'warning'];
             }
             $this->tokenStorage->forget();
 
-            return ['Verbindung getrennt.', 'info'];
+            return [$this->ll('message.disconnected'), 'info'];
         }
 
         if (isset($body['push'])) {
@@ -143,7 +145,7 @@ final class ConnectionController
                 return [$e->getMessage(), 'warning'];
             }
 
-            return ['Der tägliche Scheduler-Task ist angelegt.', 'success'];
+            return [$this->ll('message.taskCreated'), 'success'];
         }
 
         if (!isset($body['connect'])) {
@@ -154,7 +156,7 @@ final class ConnectionController
         $code = trim((string)($body['code'] ?? ''));
 
         if ($hubUrl === '' || $code === '') {
-            return ['Hub-Adresse und Code werden beide gebraucht.', 'danger'];
+            return [$this->ll('message.credentialsMissing'), 'danger'];
         }
 
         try {
@@ -163,15 +165,15 @@ final class ConnectionController
             return [$e->getMessage(), 'danger'];
         }
 
-        // Sofort melden, damit die Instanz im Hub nicht als leerer Platzhalter
-        // erscheint, sondern gleich mit Daten.
+        // Report right away so the instance does not show up in the hub as an
+        // empty placeholder.
         try {
             $this->hubClient->pushInventory($this->inventoryBuilder->build());
         } catch (HubConnectionException $e) {
-            return ['Verbunden, aber der erste Push ist fehlgeschlagen: ' . $e->getMessage(), 'warning'];
+            return [$this->ll('message.connectedPushFailed', $e->getMessage()), 'warning'];
         }
 
-        return ['Verbunden. Das Inventar wurde bereits gemeldet.', 'success'];
+        return [$this->ll('message.connected'), 'success'];
     }
 
     /**
@@ -189,8 +191,8 @@ final class ConnectionController
         // so avoids the impression that nothing happened.
         return [
             ($response['stored'] ?? false)
-                ? 'Inventar gemeldet. Der Hub hat eine Veränderung gespeichert.'
-                : 'Inventar gemeldet. Es hat sich nichts geändert, der Hub speichert daher keinen neuen Stand.',
+                ? $this->ll('message.pushedStored')
+                : $this->ll('message.pushedUnchanged'),
             'success',
         ];
     }
@@ -224,5 +226,15 @@ final class ConnectionController
         }
 
         return $base;
+    }
+
+    /**
+     * @param string|int ...$args
+     */
+    private function ll(string $key, ...$args): string
+    {
+        $text = $GLOBALS['LANG']->sL(self::LL . $key);
+
+        return $args === [] ? $text : vsprintf($text, $args);
     }
 }

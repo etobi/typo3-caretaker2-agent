@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.0">
+    <file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2026-09-09T00:00:00Z" product-name="caretaker2_agent">
+        <header/>
+        <body>
+            <trans-unit id="module.title" approved="yes">
+                <source>Caretaker2</source>
+                <target>Caretaker2</target>
+            </trans-unit>
+            <trans-unit id="module.description" approved="yes">
+                <source>Connection to the Caretaker2 hub</source>
+                <target>Verbindung zum Caretaker2 Hub</target>
+            </trans-unit>
+            <trans-unit id="connected.title" approved="yes">
+                <source>Connected</source>
+                <target>Verbunden</target>
+            </trans-unit>
+            <trans-unit id="connected.body" approved="yes">
+                <source>This instance reports its inventory to %s.</source>
+                <target>Diese Instanz meldet ihr Inventar an %s.</target>
+            </trans-unit>
+            <trans-unit id="connected.managed" approved="yes">
+                <source>The connection is set through environment variables and cannot be changed here.</source>
+                <target>Die Verbindung ist über Umgebungsvariablen gesetzt und lässt sich hier nicht ändern.</target>
+            </trans-unit>
+            <trans-unit id="schedule.title" approved="yes">
+                <source>Report daily</source>
+                <target>Täglich melden</target>
+            </trans-unit>
+            <trans-unit id="schedule.exists" approved="yes">
+                <source>A scheduler task for %s is set up. Once the cron job runs, this instance reports on its own.</source>
+                <target>Ein Scheduler-Task für %s ist eingerichtet. Läuft der Cronjob, meldet sich diese Instanz von selbst.</target>
+            </trans-unit>
+            <trans-unit id="schedule.missing" approved="yes">
+                <source>Without a daily run this instance only reports when somebody presses the button.</source>
+                <target>Ohne täglichen Lauf meldet sich diese Instanz nur, wenn jemand den Knopf drückt.</target>
+            </trans-unit>
+            <trans-unit id="schedule.create" approved="yes">
+                <source>Create daily scheduler task</source>
+                <target>Täglichen Scheduler-Task anlegen</target>
+            </trans-unit>
+            <trans-unit id="schedule.unavailable" approved="yes">
+                <source>The scheduler extension is not installed. Alternatively %s can be called from cron directly.</source>
+                <target>Die Extension scheduler ist nicht installiert. Alternativ lässt sich %s direkt per Cron aufrufen.</target>
+            </trans-unit>
+            <trans-unit id="button.push" approved="yes">
+                <source>Send data now</source>
+                <target>Daten jetzt senden</target>
+            </trans-unit>
+            <trans-unit id="button.disconnect" approved="yes">
+                <source>Disconnect</source>
+                <target>Verbindung trennen</target>
+            </trans-unit>
+            <trans-unit id="button.connect" approved="yes">
+                <source>Connect</source>
+                <target>Verbinden</target>
+            </trans-unit>
+            <trans-unit id="connect.title" approved="yes">
+                <source>Connect to a hub</source>
+                <target>Mit einem Hub verbinden</target>
+            </trans-unit>
+            <trans-unit id="connect.body" approved="yes">
+                <source>Create a code in the hub under Caretaker2 → Instances and enter it here.</source>
+                <target>Im Hub unter Caretaker2 → Instanzen einen Code erzeugen und hier eintragen.</target>
+            </trans-unit>
+            <trans-unit id="connect.hubUrl" approved="yes">
+                <source>Hub address</source>
+                <target>Adresse des Hubs</target>
+            </trans-unit>
+            <trans-unit id="connect.code" approved="yes">
+                <source>Code</source>
+                <target>Code</target>
+            </trans-unit>
+            <trans-unit id="inventory.heading" approved="yes">
+                <source>Inventory</source>
+                <target>Inventar</target>
+            </trans-unit>
+            <trans-unit id="inventory.agentVersion" approved="yes">
+                <source>Agent version %s.</source>
+                <target>Agent-Version %s.</target>
+            </trans-unit>
+            <trans-unit id="inventory.column.provider" approved="yes">
+                <source>Provider</source>
+                <target>Provider</target>
+            </trans-unit>
+            <trans-unit id="inventory.column.state" approved="yes">
+                <source>State</source>
+                <target>Zustand</target>
+            </trans-unit>
+            <trans-unit id="inventory.show" approved="yes">
+                <source>Show the full inventory</source>
+                <target>Vollständiges Inventar ansehen</target>
+            </trans-unit>
+            <trans-unit id="message.disconnectManaged" approved="yes">
+                <source>The connection comes from the environment and cannot be cut here.</source>
+                <target>Die Verbindung kommt aus der Umgebung und kann hier nicht getrennt werden.</target>
+            </trans-unit>
+            <trans-unit id="message.disconnected" approved="yes">
+                <source>Disconnected.</source>
+                <target>Verbindung getrennt.</target>
+            </trans-unit>
+            <trans-unit id="message.taskCreated" approved="yes">
+                <source>The daily scheduler task has been created.</source>
+                <target>Der tägliche Scheduler-Task ist angelegt.</target>
+            </trans-unit>
+            <trans-unit id="message.credentialsMissing" approved="yes">
+                <source>Both the hub address and the code are needed.</source>
+                <target>Hub-Adresse und Code werden beide gebraucht.</target>
+            </trans-unit>
+            <trans-unit id="message.connectedPushFailed" approved="yes">
+                <source>Connected, but the first push failed: %s</source>
+                <target>Verbunden, aber der erste Push ist fehlgeschlagen: %s</target>
+            </trans-unit>
+            <trans-unit id="message.connected" approved="yes">
+                <source>Connected. The inventory has already been reported.</source>
+                <target>Verbunden. Das Inventar wurde bereits gemeldet.</target>
+            </trans-unit>
+            <trans-unit id="message.pushedStored" approved="yes">
+                <source>Inventory reported. The hub stored a change.</source>
+                <target>Inventar gemeldet. Der Hub hat eine Veränderung gespeichert.</target>
+            </trans-unit>
+            <trans-unit id="message.pushedUnchanged" approved="yes">
+                <source>Inventory reported. Nothing changed, so the hub stores no new state.</source>
+                <target>Inventar gemeldet. Es hat sich nichts geändert, der Hub speichert daher keinen neuen Stand.</target>
+            </trans-unit>
+            <trans-unit id="error.taskExists" approved="yes">
+                <source>There already is a task for this command.</source>
+                <target>Es gibt bereits einen Task für diesen Befehl.</target>
+            </trans-unit>
+            <trans-unit id="error.taskFailed" approved="yes">
+                <source>The task could not be created: %s</source>
+                <target>Der Task ließ sich nicht anlegen: %s</target>
+            </trans-unit>
+            <trans-unit id="error.taskNoUser" approved="yes">
+                <source>The task could not be created. Is a backend user missing?</source>
+                <target>Der Task ließ sich nicht anlegen. Fehlt ein angemeldeter Backend-Benutzer?</target>
+            </trans-unit>
+            <trans-unit id="error.noToken" approved="yes">
+                <source>The hub returned no token. Is the code still valid?</source>
+                <target>Der Hub hat kein Token zurückgegeben. Ist der Code noch gültig?</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

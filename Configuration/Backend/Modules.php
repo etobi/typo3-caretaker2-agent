@@ -19,8 +19,8 @@ return [
         'path' => '/module/system/caretaker2',
         'iconIdentifier' => 'caretaker2-agent-module',
         'labels' => [
-            'title' => 'Caretaker2',
-            'description' => 'Verbindung zum Caretaker2 Hub',
+            'title' => 'LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:module.title',
+            'description' => 'LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:module.description',
         ],
         'routes' => [
             '_default' => [

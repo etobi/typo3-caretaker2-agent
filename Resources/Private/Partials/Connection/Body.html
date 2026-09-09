@@ -15,12 +15,11 @@
         <f:then>
             <div class="callout callout-success">
                 <div class="callout-content">
-                    <div class="callout-title">Verbunden</div>
+                    <div class="callout-title"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connected.title"/></div>
                     <div class="callout-body">
-                        <p>Diese Instanz meldet ihr Inventar an <strong>{hubUrl}</strong>.</p>
+                        <p><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connected.body" arguments="{0: '{hubUrl}'}"/></p>
                         <f:if condition="{managedByEnvironment}">
-                            <p class="mb-0">Die Verbindung ist über Umgebungsvariablen gesetzt
-                               und lässt sich hier nicht ändern.</p>
+                            <p class="mb-0"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connected.managed"/></p>
                         </f:if>
                     </div>
                 </div>
@@ -28,30 +27,25 @@
 
             <div class="callout callout-{f:if(condition: schedulerTaskExists, then: 'success', else: 'warning')}">
                 <div class="callout-content">
-                    <div class="callout-title">Täglich melden</div>
+                    <div class="callout-title"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:schedule.title"/></div>
                     <div class="callout-body">
                         <f:if condition="{schedulerTaskExists}">
                             <f:then>
-                                <p class="mb-0">Ein Scheduler-Task für <code>{pushCommand}</code> ist
-                                   eingerichtet. Läuft der Cronjob, meldet sich diese Instanz von
-                                   selbst.</p>
+                                <p class="mb-0"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:schedule.exists" arguments="{0: '{pushCommand}'}"/></p>
                             </f:then>
                             <f:else>
-                                <p>Ohne täglichen Lauf meldet sich diese Instanz nur, wenn jemand
-                                   den Knopf drückt.</p>
+                                <p><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:schedule.missing"/></p>
                                 <f:if condition="{schedulerAvailable}">
                                     <f:then>
                                         <form method="post">
                                             <button type="submit" name="installTask" value="1"
                                                     class="btn btn-default">
-                                                Täglichen Scheduler-Task anlegen
+                                                <f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:schedule.create"/>
                                             </button>
                                         </form>
                                     </f:then>
                                     <f:else>
-                                        <p class="mb-0">Die Extension <code>scheduler</code> ist nicht
-                                           installiert. Alternativ lässt sich
-                                           <code>{pushCommand}</code> direkt per Cron aufrufen.</p>
+                                        <p class="mb-0"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:schedule.unavailable" arguments="{0: '{pushCommand}'}"/></p>
                                     </f:else>
                                 </f:if>
                             </f:else>
@@ -62,12 +56,12 @@
 
             <form method="post" class="mb-4">
                 <button type="submit" name="push" value="1" class="btn btn-primary">
-                    Daten jetzt senden
+                    <f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:button.push"/>
                 </button>
                 <f:if condition="{managedByEnvironment}">
                     <f:else>
                         <button type="submit" name="disconnect" value="1" class="btn btn-default">
-                            Verbindung trennen
+                            <f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:button.disconnect"/>
                         </button>
                     </f:else>
                 </f:if>
@@ -76,10 +70,9 @@
         <f:else>
             <div class="callout callout-info">
                 <div class="callout-content">
-                    <div class="callout-title">Mit einem Hub verbinden</div>
+                    <div class="callout-title"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connect.title"/></div>
                     <div class="callout-body">
-                        <p class="mb-0">Im Hub unter <strong>Caretaker2 &rarr; Instanzen</strong>
-                           einen Code erzeugen und hier eintragen.</p>
+                        <p class="mb-0"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connect.body"/></p>
                     </div>
                 </div>
             </div>
@@ -88,7 +81,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="form-label" for="c2-hub">Adresse des Hubs</label>
+                            <label class="form-label" for="c2-hub"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connect.hubUrl"/></label>
                             <input type="url" class="form-control" id="c2-hub" name="hubUrl"
                                    value="{suggestedHubUrl}" placeholder="https://caretaker.example.com"
                                    required="required">
@@ -96,25 +89,25 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label class="form-label" for="c2-code">Code</label>
+                            <label class="form-label" for="c2-code"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connect.code"/></label>
                             <input type="text" class="form-control" id="c2-code" name="code"
                                    placeholder="ABCD-1234" style="text-transform:uppercase"
                                    autocomplete="off" required="required">
                         </div>
                     </div>
                 </div>
-                <button type="submit" name="connect" value="1" class="btn btn-primary">Verbinden</button>
+                <button type="submit" name="connect" value="1" class="btn btn-primary"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:button.connect"/></button>
             </form>
         </f:else>
     </f:if>
 
-    <h2>Inventar</h2>
-    <p>Agent-Version {agentVersion}.</p>
+    <h2><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:inventory.heading"/></h2>
+    <p><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:inventory.agentVersion" arguments="{0: '{agentVersion}'}"/></p>
 
     <div class="table-fit mb-3">
         <table class="table table-striped">
             <thead>
-                <tr><th>Provider</th><th>Zustand</th></tr>
+                <tr><th><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:inventory.column.provider"/></th><th><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:inventory.column.state"/></th></tr>
             </thead>
             <tbody>
                 <f:for each="{providers}" as="provider">
@@ -130,7 +123,7 @@
     </div>
 
     <details class="mb-3">
-        <summary>Vollständiges Inventar ansehen</summary>
+        <summary><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:inventory.show"/></summary>
         <pre style="max-height:24rem;overflow:auto"><code>{inventoryJson}</code></pre>
     </details>
 
