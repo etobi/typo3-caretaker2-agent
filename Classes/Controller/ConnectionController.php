@@ -12,7 +12,9 @@ use Caretaker2\Agent\Scheduler\SchedulerTaskException;
 use Caretaker2\Agent\Scheduler\SchedulerTaskInstaller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -67,7 +69,7 @@ final class ConnectionController
 
         $inventory = $this->inventoryBuilder->build();
 
-        $view->assignMultiple([
+        $variables = [
             'connected' => $this->tokenStorage->isConnected(),
             'hubUrl' => $this->tokenStorage->getHubUrl(),
             'managedByEnvironment' => $this->tokenStorage->isManagedByEnvironment(),
@@ -80,9 +82,38 @@ final class ConnectionController
             'schedulerAvailable' => $this->scheduler->isAvailable(),
             'schedulerTaskExists' => $this->scheduler->exists(),
             'pushCommand' => SchedulerTaskInstaller::COMMAND,
-        ]);
+        ];
 
-        return $view->renderResponse('Connection/Index');
+        return $this->render($view, $variables);
+    }
+
+    /**
+     * ModuleTemplate::renderResponse() arrived in v12. On v11 the template has
+     * to be rendered separately and handed to the module as content — the only
+     * difference in this controller across the supported versions.
+     *
+     * @param array<string, mixed> $variables
+     */
+    private function render(ModuleTemplate $view, array $variables): ResponseInterface
+    {
+        if (method_exists($view, 'renderResponse')) {
+            $view->assignMultiple($variables);
+
+            return $view->renderResponse('Connection/Index');
+        }
+
+        $standalone = GeneralUtility::makeInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class);
+        $standalone->setTemplateRootPaths(['EXT:caretaker2_agent/Resources/Private/Templates/']);
+        $standalone->setLayoutRootPaths([
+            'EXT:caretaker2_agent/Resources/Private/Layouts/',
+            'EXT:backend/Resources/Private/Layouts/',
+        ]);
+        $standalone->setTemplate('Connection/Index');
+        $standalone->assignMultiple($variables);
+
+        $view->setContent($standalone->render());
+
+        return new HtmlResponse($view->renderContent());
     }
 
     /**
