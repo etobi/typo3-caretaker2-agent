@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
  * Dasselbe wie der Knopf im Backend-Modul, nur für Deployment und
@@ -25,11 +26,15 @@ final class ConnectCommand extends Command
     /** @var TokenStorage */
     private $tokenStorage;
 
-    public function __construct(HubClient $hubClient, TokenStorage $tokenStorage)
+    /** @var SiteFinder */
+    private $siteFinder;
+
+    public function __construct(HubClient $hubClient, TokenStorage $tokenStorage, SiteFinder $siteFinder)
     {
         parent::__construct();
         $this->hubClient = $hubClient;
         $this->tokenStorage = $tokenStorage;
+        $this->siteFinder = $siteFinder;
     }
 
     protected function configure(): void
@@ -70,13 +75,41 @@ final class ConnectCommand extends Command
         return Command::SUCCESS;
     }
 
+    /**
+     * The address the hub will knock on later.
+     *
+     * On the console there is no request to take it from, and the machine's
+     * host name is not it: in a container that is the container's name, which
+     * resolves nowhere outside. The site configuration is the one place in the
+     * installation that states how the site is actually reached, so it goes
+     * first — the environment variable stays ahead of it for the case where an
+     * instance sits behind something the site configuration does not know
+     * about.
+     */
     private function guessInstanceUrl(): string
     {
-        $host = getenv('TYPO3_BASE_URL');
-        if (is_string($host) && $host !== '') {
-            return $host;
+        $configured = getenv('TYPO3_BASE_URL');
+        if (is_string($configured) && $configured !== '') {
+            return $configured;
         }
 
-        return 'https://' . (string)(getenv('HOSTNAME') ?: 'unbekannt');
+        foreach ($this->siteFinder->getAllSites() as $site) {
+            $base = $site->getBase();
+            $host = $base->getHost();
+
+            if ($host === '') {
+                continue;
+            }
+
+            $url = ($base->getScheme() ?: 'https') . '://' . $host;
+            $port = $base->getPort();
+            if ($port !== null && !in_array($port, [80, 443], true)) {
+                $url .= ':' . $port;
+            }
+
+            return $url;
+        }
+
+        return 'https://' . (string)(getenv('HOSTNAME') ?: 'unknown');
     }
 }
