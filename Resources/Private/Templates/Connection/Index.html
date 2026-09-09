@@ -30,6 +30,40 @@
                 </div>
             </div>
 
+            <div class="callout callout-{f:if(condition: schedulerTaskExists, then: 'success', else: 'warning')}">
+                <div class="callout-content">
+                    <div class="callout-title">Täglich melden</div>
+                    <div class="callout-body">
+                        <f:if condition="{schedulerTaskExists}">
+                            <f:then>
+                                <p class="mb-0">Ein Scheduler-Task für <code>{pushCommand}</code> ist
+                                   eingerichtet. Läuft der Cronjob, meldet sich diese Instanz von
+                                   selbst.</p>
+                            </f:then>
+                            <f:else>
+                                <p>Ohne täglichen Lauf meldet sich diese Instanz nur, wenn jemand
+                                   den Knopf drückt.</p>
+                                <f:if condition="{schedulerAvailable}">
+                                    <f:then>
+                                        <form method="post">
+                                            <button type="submit" name="installTask" value="1"
+                                                    class="btn btn-default">
+                                                Täglichen Scheduler-Task anlegen
+                                            </button>
+                                        </form>
+                                    </f:then>
+                                    <f:else>
+                                        <p class="mb-0">Die Extension <code>scheduler</code> ist nicht
+                                           installiert. Alternativ lässt sich
+                                           <code>{pushCommand}</code> direkt per Cron aufrufen.</p>
+                                    </f:else>
+                                </f:if>
+                            </f:else>
+                        </f:if>
+                    </div>
+                </div>
+            </div>
+
             <form method="post" class="mb-4">
                 <button type="submit" name="push" value="1" class="btn btn-primary">
                     Daten jetzt senden

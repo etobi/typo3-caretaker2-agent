@@ -8,6 +8,8 @@ use Caretaker2\Agent\Connection\HubClient;
 use Caretaker2\Agent\Connection\HubConnectionException;
 use Caretaker2\Agent\Connection\TokenStorage;
 use Caretaker2\Agent\Inventory\InventoryBuilder;
+use Caretaker2\Agent\Scheduler\SchedulerTaskException;
+use Caretaker2\Agent\Scheduler\SchedulerTaskInstaller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
@@ -33,16 +35,21 @@ final class ConnectionController
     /** @var InventoryBuilder */
     private $inventoryBuilder;
 
+    /** @var SchedulerTaskInstaller */
+    private $scheduler;
+
     public function __construct(
         ModuleTemplateFactory $moduleTemplateFactory,
         TokenStorage $tokenStorage,
         HubClient $hubClient,
-        InventoryBuilder $inventoryBuilder
+        InventoryBuilder $inventoryBuilder,
+        SchedulerTaskInstaller $scheduler
     ) {
         $this->moduleTemplateFactory = $moduleTemplateFactory;
         $this->tokenStorage = $tokenStorage;
         $this->hubClient = $hubClient;
         $this->inventoryBuilder = $inventoryBuilder;
+        $this->scheduler = $scheduler;
     }
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
@@ -70,6 +77,9 @@ final class ConnectionController
             'message' => $message,
             'messageSeverity' => $messageSeverity,
             'suggestedHubUrl' => $this->tokenStorage->getHubUrl(),
+            'schedulerAvailable' => $this->scheduler->isAvailable(),
+            'schedulerTaskExists' => $this->scheduler->exists(),
+            'pushCommand' => SchedulerTaskInstaller::COMMAND,
         ]);
 
         return $view->renderResponse('Connection/Index');
@@ -92,6 +102,16 @@ final class ConnectionController
 
         if (isset($body['push'])) {
             return $this->push();
+        }
+
+        if (isset($body['installTask'])) {
+            try {
+                $this->scheduler->install();
+            } catch (SchedulerTaskException $e) {
+                return [$e->getMessage(), 'warning'];
+            }
+
+            return ['Der tägliche Scheduler-Task ist angelegt.', 'success'];
         }
 
         if (!isset($body['connect'])) {

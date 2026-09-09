@@ -17,6 +17,7 @@ services:
       - '../Classes/Inventory/ProviderInterface.php'
       - '../Classes/Inventory/ProviderResult.php'
       - '../Classes/Connection/HubConnectionException.php'
+      - '../Classes/Scheduler/SchedulerTaskException.php'
 
   Caretaker2\Agent\Inventory\InventoryBuilder:
     arguments:
@@ -41,6 +42,10 @@ services:
   Caretaker2\Agent\Command\ConnectCommand:
     tags:
       - { name: 'console.command', command: 'caretaker2:connect', description: 'Verbindet diese Instanz mit einem Hub', schedulable: false }
+
+  Caretaker2\Agent\Command\ScheduleCommand:
+    tags:
+      - { name: 'console.command', command: 'caretaker2:schedule', description: 'Legt den täglichen Scheduler-Task für den Push an', schedulable: false }
 
   Caretaker2\Agent\Command\PushCommand:
     tags:
