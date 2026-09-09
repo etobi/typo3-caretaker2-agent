@@ -157,7 +157,6 @@ final class PlatformProvider implements ProviderInterface
                     return $version;
                 }
             } catch (\Throwable $e) {
-                // handled below
             }
         }
 

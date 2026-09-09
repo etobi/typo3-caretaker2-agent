@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Caretaker2\Agent\Inventory;
 
-/**
- * Assembles the inventory from every registered provider.
- */
 final class InventoryBuilder
 {
     /**

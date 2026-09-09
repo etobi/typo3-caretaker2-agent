@@ -18,20 +18,15 @@ use TYPO3\CMS\Core\Registry;
 /**
  * Lets the hub ask this instance to report right away.
  *
- * Runs as frontend middleware ahead of site resolution, not as a backend
- * route: a backend route cannot be reached without a login. Its 'access' =>
- * 'public' flag only relaxes the permission check — the list of routes that
- * skip authentication is a fixed allowlist in BackendUserAuthenticator and
- * extensions cannot add to it.
+ * Frontend middleware ahead of site resolution, not a backend route: a backend
+ * route needs a login, and its 'access' => 'public' flag does not change that
+ * — the routes that skip authentication are a fixed allowlist in
+ * BackendUserAuthenticator.
  *
- * The endpoint is unauthenticated on purpose. It takes no parameters, returns
- * no inventory data, and can only make the agent send its inventory to the
- * hub it is already bound to — so the worst a stranger can do is cause a
- * report that would have happened anyway. Guarding it with a second shared
- * secret would mean the hub had to store that secret in plain text, which is
- * a real liability traded for very little. A cooldown covers the remaining
- * nuisance, and instances that want more can put the backend behind HTTP
- * basic auth.
+ * Unauthenticated on purpose. It takes no parameters, returns no data, and can
+ * only make the agent report to the hub it is already bound to, so the worst a
+ * stranger achieves is a report that would have happened anyway. A cooldown
+ * covers the nuisance.
  */
 final class TriggerMiddleware implements MiddlewareInterface
 {

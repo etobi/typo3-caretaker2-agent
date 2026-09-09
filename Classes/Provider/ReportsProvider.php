@@ -12,37 +12,20 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Reports\RequestAwareStatusProviderInterface;
 
 /**
- * Everything TYPO3 already checks about itself.
+ * Everything TYPO3 already checks about itself: install tool password,
+ * devIPmask, file permissions, whatever extensions add.
  *
- * The reports framework is where the core and any number of extensions publish
- * their own health checks: install tool password, devIPmask, displayErrors,
- * file permissions, database analysis. Reading it is a fraction of the work of
- * reimplementing those checks, and the list grows on its own whenever TYPO3
- * adds one or the customer installs an extension that brings its own.
+ * Only statuses above OK are reported, together with how many were looked at —
+ * the hub has to be able to tell "nothing wrong" from "nothing checked".
  *
- * Only statuses above OK are reported. How many were looked at is reported too,
- * so the hub can tell "nothing wrong" from "nothing checked".
+ * The providers come from the reports.status DI tag rather than through
+ * StatusRegistry, which is private and unreachable from another extension in
+ * v14. It also means no build-time dependency on the reports extension.
  *
- * The status providers are collected straight from the reports.status DI tag
- * rather than through StatusRegistry, which is a private service and cannot be
- * reached from another extension in v14. Taking the tag instead also means the
- * agent carries no build-time dependency on the reports extension: without it
- * the iterator is simply empty.
- *
- * No request is passed, deliberately. A check that needs one describes the
+ * No request is passed on purpose: a check that needs one describes the
  * context that asked rather than the instance, and would answer differently
- * depending on whether the scheduler or the hub triggered the collection — the
- * same churn the fingerprint had to be normalised against. TYPO3's own
- * ServerResponseCheck is the case in point: it issues outgoing HTTP requests
- * against the site, which is infrastructure and out of scope by decision C6.
- * Providers that insist on a request are skipped and named.
- *
- * Every provider reaches for $GLOBALS['LANG'] without checking it. The CLI
- * context sets it up, a frontend middleware does not, so a hub-triggered
- * collection would have lost almost every check. It is therefore set here for
- * the duration — and always to the default locale, so that the wording of the
- * messages cannot depend on who triggered the collection or on a backend
- * user's language setting. Both would move the fingerprint.
+ * for a scheduler push than for a hub-triggered pull. Those are skipped and
+ * named.
  */
 final class ReportsProvider implements ProviderInterface
 {
@@ -257,7 +240,6 @@ final class ReportsProvider implements ProviderInterface
                 return (string)$provider->getLabel();
             }
         } catch (\Throwable $e) {
-            // fall through to the class name
         }
 
         return get_class($provider);

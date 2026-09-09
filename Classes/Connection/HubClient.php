@@ -18,7 +18,6 @@ final class HubClient
 
     private const TIMEOUT_SECONDS = 20;
 
-    /** Ein eigener Prefix, damit die API nicht mit einer echten Seite kollidiert. */
     private const API_BASE = '/caretaker2/api';
 
     /** @var RequestFactory */

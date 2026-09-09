@@ -11,17 +11,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Creates the daily scheduler task, so nobody has to know the command name.
  *
- * The scheduler is the one place where TYPO3 versions genuinely diverge: v14
- * moved tasks to TCA records and changed the API on the task itself, where v12
- * and v13 keep a serialised object. SchedulerTaskRepository::add() exists in
- * all of them though, so only the task is set up differently — two small
- * branches, both here, so the rest of the agent stays version-agnostic.
- *
- * The discriminator for the task API is setTaskType(), which only v14 has.
- * Persistence is a separate question: SchedulerTaskRepository exists from v12
- * on, v11 only has Scheduler::addTask(). Neither of the two answers the other,
- * which cost two wrong guesses — first taking the repository for a version
- * marker, then assuming it was everywhere.
+ * The scheduler is where the TYPO3 versions genuinely diverge: v14 moved tasks
+ * to TCA records and changed the task API, v12 and v13 keep a serialised
+ * object, v11 has no SchedulerTaskRepository at all. The task API is told
+ * apart by setTaskType() and persistence by the repository's existence — two
+ * separate questions, both answered here so the rest of the agent stays
+ * version-agnostic.
  */
 final class SchedulerTaskInstaller
 {
