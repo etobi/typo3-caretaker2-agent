@@ -10,15 +10,6 @@ use TYPO3\CMS\Core\Core\Environment;
 
 /**
  * composer.json and composer.lock, verbatim.
- *
- * This is the one provider the whole product hangs on. With both files the hub
- * can run composer outdated and composer audit and get exact answers for every
- * package, not just for TYPO3 extensions — including whether an update is
- * allowed by the constraints at all.
- *
- * The files are passed through unparsed apart from credential stripping. The
- * hub writes them back to disk to run composer against them, so anything we
- * reformat here is a chance to break that.
  */
 final class ComposerProvider implements ProviderInterface
 {
@@ -32,7 +23,7 @@ final class ComposerProvider implements ProviderInterface
         if (!Environment::isComposerMode()) {
             return ProviderResult::unavailable(
                 'not_composer_mode',
-                'Diese Installation wird nicht über Composer verwaltet.'
+                'This installation is not managed by composer.'
             );
         }
 
@@ -43,7 +34,7 @@ final class ComposerProvider implements ProviderInterface
         if ($json === null && $lock === null) {
             return ProviderResult::unavailable(
                 'composer_files_missing',
-                sprintf('Weder composer.json noch composer.lock lesbar unter %s.', $root)
+                sprintf('Neither composer.json nor composer.lock is readable under %s.', $root)
             );
         }
 
@@ -60,7 +51,7 @@ final class ComposerProvider implements ProviderInterface
             return ProviderResult::degraded(
                 $data,
                 'lock_missing',
-                'composer.json gelesen, composer.lock fehlt. Ohne Lock lässt sich nicht bestimmen, was installiert ist.'
+                'composer.json was read, composer.lock is missing. Without the lock there is no telling what is installed.'
             );
         }
 
@@ -68,17 +59,13 @@ final class ComposerProvider implements ProviderInterface
             return ProviderResult::degraded(
                 $data,
                 'json_missing',
-                'composer.lock gelesen, composer.json fehlt. Sicherheitsabgleich möglich, Update-Bewertung nicht.'
+                'composer.lock was read, composer.json is missing. Security matching is possible, judging updates is not.'
             );
         }
 
         return ProviderResult::ok($data);
     }
 
-    /**
-     * The COMPOSER env var may point the root somewhere else than the TYPO3
-     * project path.
-     */
     private function projectRoot(): string
     {
         $composer = getenv('COMPOSER');

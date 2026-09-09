@@ -8,9 +8,6 @@ use TYPO3\CMS\Core\Http\RequestFactory;
 
 /**
  * The only place where the agent speaks to the outside.
- *
- * Always the agent to the hub, never the other way round. That is why it
- * works behind firewalls, and why the instance has to expose no endpoint.
  */
 final class HubClient
 {
@@ -33,8 +30,7 @@ final class HubClient
     }
 
     /**
-     * Trades the short-lived enrollment code for a lasting token and stores
-     * it. The code is spent afterwards.
+     * Trades the short-lived enrollment code for a lasting token
      */
     public function enroll(string $hubUrl, string $code, string $instanceUrl): string
     {
@@ -60,7 +56,7 @@ final class HubClient
 
     /**
      * @param array<string, mixed> $inventory
-     * @return array<string, mixed> Antwort des Hubs
+     * @return array<string, mixed>
      */
     public function pushInventory(array $inventory): array
     {
@@ -90,8 +86,6 @@ final class HubClient
             'User-Agent' => 'Caretaker2-Agent/' . \Caretaker2\Agent\Inventory\InventoryBuilder::AGENT_VERSION,
         ];
         if ($token !== null) {
-            // In the header on purpose, not in the query string: query strings
-            // end up in access logs, proxy logs and analytics tools.
             $headers['Authorization'] = 'Bearer ' . $token;
         }
 

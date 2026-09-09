@@ -10,8 +10,7 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Information\Typo3Version;
 
 /**
- * What TYPO3 knows about itself. The simplest provider, and the one that
- * answers "which instances run on which version" on its own.
+ * What TYPO3 knows about itself.
  */
 final class CoreProvider implements ProviderInterface
 {

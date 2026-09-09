@@ -47,10 +47,6 @@ final class TokenStorage
         return $this->getHubUrl() !== null && $this->getToken() !== null;
     }
 
-    /**
-     * Says whether the values come from the environment, which the backend
-     * module has to explain when it cannot change them.
-     */
     public function isManagedByEnvironment(): bool
     {
         return $this->readEnv(self::ENV_TOKEN) !== null;

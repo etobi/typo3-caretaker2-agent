@@ -2,7 +2,7 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Caretaker2 Agent',
-    'description' => 'Sammelt ein Inventar dieser Instanz und meldet es an einen Caretaker2 Hub.',
+    'description' => 'Collects an inventory of this instance and reports it to a Caretaker2 hub.',
     'category' => 'module',
     'author' => 'Tobias Liebig',
     'state' => 'alpha',

@@ -11,11 +11,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Module registration for TYPO3 v11 only.
- *
- * From v12 on this lives in Configuration/Backend/Modules.php, which v11 does
- * not read. Registering here unconditionally would give v12 and above the
- * module twice, so the version is checked — the one place in the agent that
- * needs two code paths.
  */
 (static function (): void {
     if ((new Typo3Version())->getMajorVersion() >= 12) {

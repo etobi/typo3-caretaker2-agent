@@ -13,15 +13,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * The single entry point for a push.
- *
- * Three triggers, one implementation: by hand after a deployment, daily
- * through the built-in scheduler task for console commands, and on the hub's
- * request. A console command is also the most stable interface TYPO3 offers
- * across v11 to v14 — scheduler task classes of one's own changed several
- * times in that span.
- */
 final class PushCommand extends Command
 {
     /** @var InventoryBuilder */
@@ -63,10 +54,7 @@ final class PushCommand extends Command
         try {
             $response = $this->hubClient->pushInventory($inventory);
         } catch (HubConnectionException $e) {
-            // A failure code, so a deployment pipeline notices. Whoever does
-            // not care appends "|| true".
             $io->error($e->getMessage());
-
             return Command::FAILURE;
         }
 

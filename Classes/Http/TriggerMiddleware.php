@@ -17,16 +17,6 @@ use TYPO3\CMS\Core\Registry;
 
 /**
  * Lets the hub ask this instance to report right away.
- *
- * Frontend middleware ahead of site resolution, not a backend route: a backend
- * route needs a login, and its 'access' => 'public' flag does not change that
- * — the routes that skip authentication are a fixed allowlist in
- * BackendUserAuthenticator.
- *
- * Unauthenticated on purpose. It takes no parameters, returns no data, and can
- * only make the agent report to the hub it is already bound to, so the worst a
- * stranger achieves is a report that would have happened anyway. A cooldown
- * covers the nuisance.
  */
 final class TriggerMiddleware implements MiddlewareInterface
 {

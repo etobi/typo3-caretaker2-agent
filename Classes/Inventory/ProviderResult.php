@@ -6,10 +6,6 @@ namespace Caretaker2\Agent\Inventory;
 
 /**
  * What a provider found: data and state in one.
- *
- * The state is required, not decoration. A hub that cannot tell a silently
- * failed provider from an empty result gives an all-clear precisely when
- * something went wrong. Which is why "just return nothing" is not offered.
  */
 final class ProviderResult implements \JsonSerializable
 {
@@ -23,10 +19,10 @@ final class ProviderResult implements \JsonSerializable
     /** @var array<string, mixed>|null */
     private $data;
 
-    /** @var string|null Maschinenlesbarer Grund, z.B. composer_files_missing */
+    /** @var string|null */
     private $reason;
 
-    /** @var string|null Klartext für Menschen */
+    /** @var string|null */
     private $message;
 
     /**

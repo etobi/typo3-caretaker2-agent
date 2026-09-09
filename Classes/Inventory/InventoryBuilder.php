@@ -7,7 +7,7 @@ namespace Caretaker2\Agent\Inventory;
 final class InventoryBuilder
 {
     /**
-     * Only rises on breaking changes to the format. The hub understands n-2.
+     * Only rises on breaking changes to the format.
      */
     public const SCHEMA_VERSION = 1;
 
@@ -34,9 +34,6 @@ final class InventoryBuilder
         foreach ($this->providers as $provider) {
             $key = $provider->getKey();
 
-            // A provider is not supposed to throw. If one does, it must not cost
-            // the whole inventory — that one part is missing, and the hub is
-            // told why.
             try {
                 $providers[$key] = $provider->collect();
             } catch (\Throwable $e) {
@@ -58,10 +55,6 @@ final class InventoryBuilder
         ];
     }
 
-    /**
-     * A fingerprint over the content, without generatedAt — otherwise every
-     * push would be a change. The hub only stores what actually differs.
-     */
     public function fingerprint(array $inventory): string
     {
         $relevant = $inventory;

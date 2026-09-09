@@ -14,18 +14,6 @@ use TYPO3\CMS\Reports\RequestAwareStatusProviderInterface;
 /**
  * Everything TYPO3 already checks about itself: install tool password,
  * devIPmask, file permissions, whatever extensions add.
- *
- * Only statuses above OK are reported, together with how many were looked at —
- * the hub has to be able to tell "nothing wrong" from "nothing checked".
- *
- * The providers come from the reports.status DI tag rather than through
- * StatusRegistry, which is private and unreachable from another extension in
- * v14. It also means no build-time dependency on the reports extension.
- *
- * No request is passed on purpose: a check that needs one describes the
- * context that asked rather than the instance, and would answer differently
- * for a scheduler push than for a hub-triggered pull. Those are skipped and
- * named.
  */
 final class ReportsProvider implements ProviderInterface
 {
@@ -57,7 +45,7 @@ final class ReportsProvider implements ProviderInterface
         if (!ExtensionManagementUtility::isLoaded('reports')) {
             return ProviderResult::unavailable(
                 'reports_not_installed',
-                'Die Extension "reports" ist nicht installiert. Ohne sie führt TYPO3 seine eigenen Prüfungen nicht aus.'
+                'The reports extension is not installed. Without it TYPO3 does not run its own checks.'
             );
         }
 
@@ -92,7 +80,7 @@ final class ReportsProvider implements ProviderInterface
             return ProviderResult::degraded(
                 $data,
                 'provider_threw',
-                sprintf('%d von TYPO3s eigenen Prüfungen brachen unerwartet ab.', count($unexpected))
+                sprintf('%d of TYPO3\'s own checks broke off unexpectedly.', count($unexpected))
             );
         }
 
@@ -148,15 +136,6 @@ final class ReportsProvider implements ProviderInterface
     }
 
     /**
-     * The DI tag "reports.status" only exists from v12 on. v11 registers its
-     * status providers in SC_OPTIONS, so an agent that only reads the tag
-     * finds nothing there and reports "ok, zero checked" — which reads like an
-     * all-clear and is the opposite of one.
-     *
-     * The array is keyed by section — "typo3", "security", "configuration" —
-     * and that key is what v12 later turned into getLabel(). Carrying it along
-     * makes a finding read the same on either version.
-     *
      * @return list<array{provider: object, label: string|null}>
      */
     private function allStatusProviders(): array
@@ -195,19 +174,11 @@ final class ReportsProvider implements ProviderInterface
         return $providers;
     }
 
-    /**
-     * Always the default locale, never the current user's. The reports carry
-     * translated text, and a message that reads differently depending on who
-     * looked would count as a change in the hub.
-     */
     private function useDefaultLanguage(): void
     {
         try {
             $GLOBALS['LANG'] = GeneralUtility::makeInstance(LanguageServiceFactory::class)->create('default');
 
-            // v11 providers read their titles with getLL(), which answers only
-            // once the file is loaded. TYPO3 does that in the report class we
-            // bypass, so without this every v11 status arrives untitled.
             if (method_exists($GLOBALS['LANG'], 'includeLLFile')) {
                 $GLOBALS['LANG']->includeLLFile('EXT:reports/Resources/Private/Language/locallang_reports.xlf');
             }
@@ -245,9 +216,6 @@ final class ReportsProvider implements ProviderInterface
         return get_class($provider);
     }
 
-    /**
-     * Report messages carry markup and can run long.
-     */
     private function plainText(string $message): string
     {
         $text = trim((string)preg_replace('/\s+/', ' ', strip_tags($message)));

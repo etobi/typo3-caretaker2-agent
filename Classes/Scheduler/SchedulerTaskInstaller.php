@@ -9,14 +9,7 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Creates the daily scheduler task, so nobody has to know the command name.
- *
- * The scheduler is where the TYPO3 versions genuinely diverge: v14 moved tasks
- * to TCA records and changed the task API, v12 and v13 keep a serialised
- * object, v11 has no SchedulerTaskRepository at all. The task API is told
- * apart by setTaskType() and persistence by the repository's existence — two
- * separate questions, both answered here so the rest of the agent stays
- * version-agnostic.
+ * Creates the daily scheduler task
  */
 final class SchedulerTaskInstaller
 {
@@ -91,10 +84,6 @@ final class SchedulerTaskInstaller
         if (method_exists($task, 'registerRecurringExecution')) {
             $task->registerRecurringExecution($start, self::INTERVAL_SECONDS);
         } else {
-            // v14 persists through DataHandler, and its hook rebuilds the
-            // execution from the submitted record — where it reads "frequency"
-            // or "cronCmd", never "interval". Handing it an interval leaves a
-            // task that runs once and then never again, silently.
             $task->setExecution(
                 \TYPO3\CMS\Scheduler\Execution::createRecurringExecution(
                     $start,
@@ -126,9 +115,6 @@ final class SchedulerTaskInstaller
         }
 
         if ($saved === false) {
-            // From v14 the repository writes through DataHandler, which needs a
-            // backend user. In the module there is one; on the console the
-            // command has to provide it.
             throw new SchedulerTaskException(
                 $this->ll('error.taskNoUser')
             );
@@ -140,11 +126,6 @@ final class SchedulerTaskInstaller
         return method_exists(\TYPO3\CMS\Scheduler\Task\ExecuteSchedulableCommandTask::class, 'setTaskType');
     }
 
-    /**
-     * Tonight, at a minute derived from this instance rather than a round hour.
-     * A hundred agents all reporting at 03:00:00 would arrive at the hub as one
-     * burst; spreading them costs nothing and is hard to retrofit.
-     */
     private function nextNightlyStart(): int
     {
         $minute = abs(crc32((string)($GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] ?? gethostname()))) % 60;

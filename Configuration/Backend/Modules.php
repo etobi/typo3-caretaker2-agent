@@ -6,11 +6,6 @@ use Caretaker2\Agent\Controller\ConnectionController;
 
 /**
  * Module registration for TYPO3 v12 to v14.
- *
- * v11 does not read this file; there the registration goes through
- * ext_tables.php with addModule(). Together with the rendering and the
- * scheduler task, this is one of the three places in the agent where the span
- * v11 to v14 forces two code paths.
  */
 return [
     'caretaker2_agent' => [

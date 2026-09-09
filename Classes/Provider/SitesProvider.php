@@ -12,11 +12,6 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
  * Which sites and domains live in this instance.
- *
- * The domain list is the union of the site bases and every language base, not
- * just the site bases: a language may carry its own domain, which is exactly
- * the one that gets forgotten when a security advisory has to be turned into
- * a list of customers to call.
  */
 final class SitesProvider implements ProviderInterface
 {
@@ -101,9 +96,6 @@ final class SitesProvider implements ProviderInterface
         ];
     }
 
-    /**
-     * getLocale() returns a string up to v12 and a Locale object from v13 on.
-     */
     private function localeOf(SiteLanguage $language): string
     {
         $locale = $language->getLocale();

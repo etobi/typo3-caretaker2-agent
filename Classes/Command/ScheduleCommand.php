@@ -13,9 +13,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Core\Authentication\CommandLineUserAuthentication;
 use TYPO3\CMS\Core\Core\Bootstrap;
 
-/**
- * Same as the button in the backend module, for provisioning.
- */
 final class ScheduleCommand extends Command
 {
     /** @var SchedulerTaskInstaller */
@@ -27,21 +24,12 @@ final class ScheduleCommand extends Command
         $this->installer = $installer;
     }
 
-    /**
-     * From v14 the scheduler writes through DataHandler, which refuses to touch
-     * the table without an authenticated administrator. The module has one; on
-     * the console the command line user has to be logged in explicitly —
-     * initialising it is not enough, and the core does the same in
-     * SchedulerTaskRepository::updateExecution().
-     */
     private function ensureBackendUser(): void
     {
         if (($GLOBALS['BE_USER']->user['admin'] ?? 0) === 1) {
             return;
         }
 
-        // Only from v13 on does the method return the user; before that it
-        // returns nothing and merely sets $GLOBALS.
         Bootstrap::initializeBackendUser(CommandLineUserAuthentication::class);
 
         $user = $GLOBALS['BE_USER'] ?? null;

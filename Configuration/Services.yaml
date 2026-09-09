@@ -4,9 +4,6 @@ services:
     autoconfigure: true
     public: false
 
-  # Every class implementing ProviderInterface gets the tag automatically. A
-  # customer extension bringing a provider of its own needs the same tag, and
-  # then lands in the inventory without any further doing.
   _instanceof:
     Caretaker2\Agent\Inventory\ProviderInterface:
       tags: ['caretaker2.provider']
@@ -23,22 +20,13 @@ services:
     arguments:
       $providers: !tagged_iterator caretaker2.provider
 
-  # The same source TYPO3's own StatusRegistry feeds from. Without the reports
-  # extension nobody carries the tag and the iterator stays empty, so no
-  # dependency arises from it.
   Caretaker2\Agent\Provider\ReportsProvider:
     arguments:
       $statusProviders: !tagged_iterator reports.status
 
-  # Module routes are resolved through the container, so the controller has to
-  # be public. The #[AsController] attribute would do the same but only exists
-  # from v12 on, and the agent has to carry v11.
   Caretaker2\Agent\Controller\ConnectionController:
     public: true
 
-
-  # Registered through the DI tag rather than Configuration/Commands.php: the
-  # latter is gone in v13, the tag carries from v10 to v14.
   Caretaker2\Agent\Command\ConnectCommand:
     tags:
       - { name: 'console.command', command: 'caretaker2:connect', description: 'Connects this instance to a hub', schedulable: false }

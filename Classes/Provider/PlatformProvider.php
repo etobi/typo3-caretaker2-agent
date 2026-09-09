@@ -10,14 +10,6 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
  * PHP and the database as this instance actually finds them.
- *
- * The provider carries more weight than its size suggests: composer decides
- * what is installable from the environment it runs in. Without these values
- * the hub — running on an entirely different PHP version — would report
- * updates the instance cannot take. They become its config.platform block.
- *
- * Raw values only. Which of them is a problem is the hub's call, not the
- * agent's.
  */
 final class PlatformProvider implements ProviderInterface
 {
@@ -56,7 +48,7 @@ final class PlatformProvider implements ProviderInterface
             return ProviderResult::degraded(
                 $data,
                 'database_version_unavailable',
-                'PHP-Daten vollständig, die Datenbankversion war nicht ermittelbar.'
+                'The PHP data is complete, the database version could not be determined.'
             );
         }
 
@@ -110,9 +102,7 @@ final class PlatformProvider implements ProviderInterface
     }
 
     /**
-     * Doctrine moved the version API around between DBAL releases. Rather than
-     * betting on one variant, they are tried in turn — the agent has to carry
-     * v11 through v14.
+     * Doctrine moved the version API around between DBAL releases.
      *
      * @return array<string, string>|null
      */

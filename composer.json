@@ -1,7 +1,7 @@
 {
     "name": "caretaker2/agent",
     "type": "typo3-cms-extension",
-    "description": "Caretaker2 Agent — sammelt ein Inventar und meldet es an den Hub",
+    "description": "Caretaker2 Agent — collects an inventory and reports it to the hub",
     "license": "GPL-2.0-or-later",
     "require": {
         "php": "^7.4 || ^8.0",
@@ -20,6 +20,6 @@
         }
     },
     "suggest": {
-        "typo3/cms-reports": "Damit meldet der Agent auch die Prüfungen, die TYPO3 selbst über sein Reports-Framework durchführt."
+        "typo3/cms-reports": "Lets the agent report the checks TYPO3 runs on itself through its reports framework."
     }
 }

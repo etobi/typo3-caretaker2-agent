@@ -17,12 +17,6 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-/**
- * The entire setup of an instance: two fields and a button.
- *
- * Anything more involved does not get rolled out, and a monitoring system
- * nobody installs monitors nothing.
- */
 final class ConnectionController
 {
     private const LL = 'LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:';
@@ -165,8 +159,6 @@ final class ConnectionController
             return [$e->getMessage(), 'danger'];
         }
 
-        // Report right away so the instance does not show up in the hub as an
-        // empty placeholder.
         try {
             $this->hubClient->pushInventory($this->inventoryBuilder->build());
         } catch (HubConnectionException $e) {
@@ -187,8 +179,6 @@ final class ConnectionController
             return [$e->getMessage(), 'danger'];
         }
 
-        // The hub only stores a snapshot when the fingerprint changed. Saying
-        // so avoids the impression that nothing happened.
         return [
             ($response['stored'] ?? false)
                 ? $this->ll('message.pushedStored')
