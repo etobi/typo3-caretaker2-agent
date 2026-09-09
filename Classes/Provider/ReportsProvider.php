@@ -125,7 +125,7 @@ final class ReportsProvider implements ProviderInterface
         $checked = 0;
         $skipped = [];
 
-        foreach ($this->statusProviders as $provider) {
+        foreach ($this->allStatusProviders() as $provider) {
             try {
                 $statuses = $provider->getStatus();
             } catch (\Throwable $e) {
@@ -160,6 +160,47 @@ final class ReportsProvider implements ProviderInterface
         }
 
         return [$issues, $checked, $skipped];
+    }
+
+    /**
+     * The DI tag "reports.status" only exists from v12 on. v11 registers its
+     * status providers in SC_OPTIONS, so an agent that only reads the tag
+     * finds nothing there and reports "ok, zero checked" — which reads like an
+     * all-clear and is the opposite of one.
+     *
+     * @return list<object>
+     */
+    private function allStatusProviders(): array
+    {
+        $providers = [];
+        foreach ($this->statusProviders as $provider) {
+            $providers[] = $provider;
+        }
+
+        if ($providers !== []) {
+            return $providers;
+        }
+
+        $registered = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_reports']['status']['providers'] ?? [];
+        if (!is_array($registered)) {
+            return $providers;
+        }
+
+        foreach ($registered as $section) {
+            foreach ((array)$section as $className) {
+                if (!is_string($className) || !class_exists($className)) {
+                    continue;
+                }
+
+                try {
+                    $providers[] = GeneralUtility::makeInstance($className);
+                } catch (\Throwable $e) {
+                    // A provider that cannot even be built is one we cannot ask.
+                }
+            }
+        }
+
+        return $providers;
     }
 
     /**
