@@ -17,9 +17,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * all of them though, so only the task is set up differently — two small
  * branches, both here, so the rest of the agent stays version-agnostic.
  *
- * The discriminator is setTaskType() on the task. The repository is not one:
- * it exists in every supported version, which is exactly why the first attempt
- * at this detection picked the wrong branch on v12.
+ * The discriminator for the task API is setTaskType(), which only v14 has.
+ * Persistence is a separate question: SchedulerTaskRepository exists from v12
+ * on, v11 only has Scheduler::addTask(). Neither of the two answers the other,
+ * which cost two wrong guesses — first taking the repository for a version
+ * marker, then assuming it was everywhere.
  */
 final class SchedulerTaskInstaller
 {
@@ -107,9 +109,11 @@ final class SchedulerTaskInstaller
     private function persist($task): void
     {
         try {
-            $saved = GeneralUtility::makeInstance(
-                \TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class
-            )->add($task);
+            $saved = class_exists(\TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class)
+                ? GeneralUtility::makeInstance(
+                    \TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class
+                )->add($task)
+                : GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Scheduler::class)->addTask($task);
         } catch (\Throwable $e) {
             throw new SchedulerTaskException('Der Task ließ sich nicht anlegen: ' . $e->getMessage(), 0, $e);
         }
