@@ -102,14 +102,8 @@
             <trans-unit id="error.taskNoUser">
                 <source>The task could not be created. Is a backend user missing?</source>
             </trans-unit>
-            <trans-unit id="error.noToken">
-                <source>The hub returned no token. Is the code still valid?</source>
-            </trans-unit>
             <trans-unit id="error.schedulerMissing">
                 <source>The scheduler extension is not installed.</source>
-            </trans-unit>
-            <trans-unit id="error.hubUnreachable">
-                <source>The hub is unreachable (%s): %s</source>
             </trans-unit>
             <trans-unit id="schedule.notRecurring">
                 <source>A scheduler task for %s exists, but it does not repeat — it runs once and never again. Creating it anew fixes that.</source>

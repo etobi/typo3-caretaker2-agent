@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace Caretaker2\Agent\Connection;
 
+use Caretaker2\Agent\Inventory\InventoryBuilder;
 use TYPO3\CMS\Core\Http\RequestFactory;
 
 /**
  * The only place where the agent speaks to the outside.
+ *
+ * Its messages are English literals on purpose: they travel back to the hub
+ * through the trigger endpoint, and that runs in a frontend request where no
+ * language service exists.
  */
 final class HubClient
 {
-    private const LL = 'LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:';
-
     private const TIMEOUT_SECONDS = 20;
 
     private const API_BASE = '/caretaker2/api';
@@ -39,14 +42,12 @@ final class HubClient
         $response = $this->send($hubUrl . self::API_BASE . '/enroll', [
             'code' => strtoupper(trim($code)),
             'instanceUrl' => $instanceUrl,
-            'agentVersion' => \Caretaker2\Agent\Inventory\InventoryBuilder::AGENT_VERSION,
+            'agentVersion' => InventoryBuilder::AGENT_VERSION,
         ]);
 
         $token = $response['token'] ?? null;
         if (!is_string($token) || $token === '') {
-            throw new HubConnectionException(
-                $this->ll('error.noToken')
-            );
+            throw new HubConnectionException('The hub returned no token. Is the code still valid?');
         }
 
         $this->tokenStorage->store($hubUrl, $token);
@@ -65,9 +66,8 @@ final class HubClient
 
         if ($hubUrl === null || $token === null) {
             throw new HubConnectionException(
-                'Diese Instanz ist mit keinem Hub verbunden. Im Backend-Modul '
-                . '"Caretaker2" verbinden oder CARETAKER2_HUB_URL und '
-                . 'CARETAKER2_TOKEN setzen.'
+                'This instance is not connected to a hub. Connect it in the "Caretaker2" '
+                . 'backend module, or set CARETAKER2_HUB_URL and CARETAKER2_TOKEN.'
             );
         }
 
@@ -83,7 +83,7 @@ final class HubClient
         $headers = [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-            'User-Agent' => 'Caretaker2-Agent/' . \Caretaker2\Agent\Inventory\InventoryBuilder::AGENT_VERSION,
+            'User-Agent' => 'Caretaker2-Agent/' . InventoryBuilder::AGENT_VERSION,
         ];
         if ($token !== null) {
             $headers['Authorization'] = 'Bearer ' . $token;
@@ -98,7 +98,7 @@ final class HubClient
             ]);
         } catch (\Throwable $e) {
             throw new HubConnectionException(
-                $this->ll('error.hubUnreachable', $url, $e->getMessage()),
+                sprintf('The hub is unreachable (%s): %s', $url, $e->getMessage()),
                 0,
                 $e
             );
@@ -114,20 +114,10 @@ final class HubClient
                 : substr($body, 0, 200);
 
             throw new HubConnectionException(
-                sprintf('Hub antwortet mit HTTP %d: %s', $status, $detail)
+                sprintf('The hub answered with HTTP %d: %s', $status, $detail)
             );
         }
 
         return is_array($decoded) ? $decoded : [];
-    }
-
-    /**
-     * @param string|int ...$args
-     */
-    private function ll(string $key, ...$args): string
-    {
-        $text = $GLOBALS['LANG']->sL(self::LL . $key);
-
-        return $args === [] ? $text : vsprintf($text, $args);
     }
 }
