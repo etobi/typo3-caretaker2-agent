@@ -108,6 +108,9 @@
             <trans-unit id="error.schedulerMissing">
                 <source>The scheduler extension is not installed.</source>
             </trans-unit>
+            <trans-unit id="error.hubUnreachable">
+                <source>The hub is unreachable (%s): %s</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

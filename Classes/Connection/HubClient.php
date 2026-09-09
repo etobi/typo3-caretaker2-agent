@@ -98,7 +98,7 @@ final class HubClient
             ]);
         } catch (\Throwable $e) {
             throw new HubConnectionException(
-                sprintf('Hub nicht erreichbar (%s): %s', $url, $e->getMessage()),
+                $this->ll('error.hubUnreachable', $url, $e->getMessage()),
                 0,
                 $e
             );

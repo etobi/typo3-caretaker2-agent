@@ -143,6 +143,10 @@
                 <source>The scheduler extension is not installed.</source>
                 <target>Die Extension scheduler ist nicht installiert.</target>
             </trans-unit>
+            <trans-unit id="error.hubUnreachable" approved="yes">
+                <source>The hub is unreachable (%s): %s</source>
+                <target>Hub nicht erreichbar (%s): %s</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
