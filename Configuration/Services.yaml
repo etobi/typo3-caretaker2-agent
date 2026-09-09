@@ -1,0 +1,33 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  # Jede Klasse, die ProviderInterface implementiert, bekommt den Tag
+  # automatisch. Eine Kunden-Extension, die einen eigenen Provider mitbringt,
+  # braucht denselben Tag — und landet dann ohne weiteres Zutun im Inventar.
+  _instanceof:
+    Caretaker2\Agent\Inventory\ProviderInterface:
+      tags: ['caretaker2.provider']
+
+  Caretaker2\Agent\:
+    resource: '../Classes/*'
+    exclude:
+      - '../Classes/Inventory/ProviderInterface.php'
+      - '../Classes/Inventory/ProviderResult.php'
+      - '../Classes/Connection/HubConnectionException.php'
+
+  Caretaker2\Agent\Inventory\InventoryBuilder:
+    arguments:
+      $providers: !tagged_iterator caretaker2.provider
+
+  # Registrierung über den DI-Tag, nicht über Configuration/Commands.php:
+  # letztere ist in v13 entfallen, der Tag trägt von v10 bis v14.
+  Caretaker2\Agent\Command\ConnectCommand:
+    tags:
+      - { name: 'console.command', command: 'caretaker2:connect', description: 'Verbindet diese Instanz mit einem Hub', schedulable: false }
+
+  Caretaker2\Agent\Command\PushCommand:
+    tags:
+      - { name: 'console.command', command: 'caretaker2:push', description: 'Meldet das Inventar dieser Instanz an den Hub', schedulable: true }
