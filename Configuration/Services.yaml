@@ -22,6 +22,12 @@ services:
     arguments:
       $providers: !tagged_iterator caretaker2.provider
 
+  # Modul-Routen werden über den Container aufgelöst, der Controller muss
+  # deshalb public sein. Das Attribut #[AsController] täte dasselbe, gibt es
+  # aber erst ab v12 — und der Agent muss v11 tragen.
+  Caretaker2\Agent\Controller\ConnectionController:
+    public: true
+
   # Registrierung über den DI-Tag, nicht über Configuration/Commands.php:
   # letztere ist in v13 entfallen, der Tag trägt von v10 bis v14.
   Caretaker2\Agent\Command\ConnectCommand:
