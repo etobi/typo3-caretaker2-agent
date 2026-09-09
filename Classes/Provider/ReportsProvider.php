@@ -6,7 +6,9 @@ namespace Caretaker2\Agent\Provider;
 
 use Caretaker2\Agent\Inventory\ProviderInterface;
 use Caretaker2\Agent\Inventory\ProviderResult;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Reports\RequestAwareStatusProviderInterface;
 
 /**
@@ -34,6 +36,13 @@ use TYPO3\CMS\Reports\RequestAwareStatusProviderInterface;
  * ServerResponseCheck is the case in point: it issues outgoing HTTP requests
  * against the site, which is infrastructure and out of scope by decision C6.
  * Providers that insist on a request are skipped and named.
+ *
+ * Every provider reaches for $GLOBALS['LANG'] without checking it. The CLI
+ * context sets it up, a frontend middleware does not, so a hub-triggered
+ * collection would have lost almost every check. It is therefore set here for
+ * the duration — and always to the default locale, so that the wording of the
+ * messages cannot depend on who triggered the collection or on a backend
+ * user's language setting. Both would move the fingerprint.
  */
 final class ReportsProvider implements ProviderInterface
 {
@@ -73,6 +82,49 @@ final class ReportsProvider implements ProviderInterface
         $checked = 0;
         $skipped = [];
 
+        $previousLanguage = $GLOBALS['LANG'] ?? null;
+        $this->useDefaultLanguage();
+
+        try {
+            [$issues, $checked, $skipped] = $this->collectStatuses();
+        } finally {
+            $GLOBALS['LANG'] = $previousLanguage;
+        }
+
+        $data = [
+            'checked' => $checked,
+            'issueCount' => count($issues),
+            'issues' => $issues,
+            'skipped' => $skipped,
+        ];
+
+        // A provider that insists on a request is a deliberate omission, not a
+        // gap: those checks are out of scope. Anything else that throws is a
+        // gap, and says so.
+        $unexpected = array_filter($skipped, static function (array $entry): bool {
+            return $entry['reason'] !== 'requires_request';
+        });
+
+        if ($unexpected !== []) {
+            return ProviderResult::degraded(
+                $data,
+                'provider_threw',
+                sprintf('%d von TYPO3s eigenen Prüfungen brachen unerwartet ab.', count($unexpected))
+            );
+        }
+
+        return ProviderResult::ok($data);
+    }
+
+    /**
+     * @return array{0: list<array<string, string>>, 1: int, 2: list<array<string, string>>}
+     */
+    private function collectStatuses(): array
+    {
+        $issues = [];
+        $checked = 0;
+        $skipped = [];
+
         foreach ($this->statusProviders as $provider) {
             try {
                 $statuses = $provider->getStatus();
@@ -107,29 +159,22 @@ final class ReportsProvider implements ProviderInterface
             }
         }
 
-        $data = [
-            'checked' => $checked,
-            'issueCount' => count($issues),
-            'issues' => $issues,
-            'skipped' => $skipped,
-        ];
+        return [$issues, $checked, $skipped];
+    }
 
-        // A provider that insists on a request is a deliberate omission, not a
-        // gap: those checks are out of scope. Anything else that throws is a
-        // gap, and says so.
-        $unexpected = array_filter($skipped, static function (array $entry): bool {
-            return $entry['reason'] !== 'requires_request';
-        });
-
-        if ($unexpected !== []) {
-            return ProviderResult::degraded(
-                $data,
-                'provider_threw',
-                sprintf('%d von TYPO3s eigenen Prüfungen brachen unerwartet ab.', count($unexpected))
-            );
+    /**
+     * Always the default locale, never the current user's. The reports carry
+     * translated text, and a message that reads differently depending on who
+     * looked would count as a change in the hub.
+     */
+    private function useDefaultLanguage(): void
+    {
+        try {
+            $GLOBALS['LANG'] = GeneralUtility::makeInstance(LanguageServiceFactory::class)->create('default');
+        } catch (\Throwable $e) {
+            // Leave whatever was there. Providers that need it will report as
+            // skipped, which is visible.
         }
-
-        return ProviderResult::ok($data);
     }
 
     /**
