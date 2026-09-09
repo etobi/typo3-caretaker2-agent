@@ -139,7 +139,7 @@ final class PlatformProvider implements ProviderInterface
 
         return [
             'platform' => $platform,
-            'serverVersion' => $version,
+            'serverVersion' => $this->stripVendorPrefix($version),
         ];
     }
 
@@ -173,6 +173,15 @@ final class PlatformProvider implements ProviderInterface
         }
 
         return null;
+    }
+
+    /**
+     * Some DBAL versions prefix the reported version with a vendor name, some
+     * do not. The vendor is already in 'platform', so drop it either way.
+     */
+    private function stripVendorPrefix(string $version): string
+    {
+        return (string)preg_replace('/^(MySQL|MariaDB|PostgreSQL|SQLite)\s+/i', '', $version);
     }
 
     private function normalizePlatform(string $platformClass): string
