@@ -96,8 +96,18 @@ final class SchedulerTaskInstaller
         if (method_exists($task, 'registerRecurringExecution')) {
             $task->registerRecurringExecution($start, self::INTERVAL_SECONDS);
         } else {
+            // v14 persists through DataHandler, and its hook rebuilds the
+            // execution from the submitted record — where it reads "frequency"
+            // or "cronCmd", never "interval". Handing it an interval leaves a
+            // task that runs once and then never again, silently.
             $task->setExecution(
-                \TYPO3\CMS\Scheduler\Execution::createRecurringExecution($start, self::INTERVAL_SECONDS)
+                \TYPO3\CMS\Scheduler\Execution::createRecurringExecution(
+                    $start,
+                    0,
+                    0,
+                    false,
+                    sprintf('%d 3 * * *', (int)date('i', $start))
+                )
             );
         }
 
