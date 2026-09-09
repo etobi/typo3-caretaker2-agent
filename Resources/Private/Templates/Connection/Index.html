@@ -30,15 +30,18 @@
                 </div>
             </div>
 
-            <f:if condition="{managedByEnvironment}">
-                <f:else>
-                    <form method="post" class="mb-4">
+            <form method="post" class="mb-4">
+                <button type="submit" name="push" value="1" class="btn btn-primary">
+                    Jetzt an den Hub melden
+                </button>
+                <f:if condition="{managedByEnvironment}">
+                    <f:else>
                         <button type="submit" name="disconnect" value="1" class="btn btn-default">
                             Verbindung trennen
                         </button>
-                    </form>
-                </f:else>
-            </f:if>
+                    </f:else>
+                </f:if>
+            </form>
         </f:then>
         <f:else>
             <div class="callout callout-info">

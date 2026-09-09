@@ -90,6 +90,10 @@ final class ConnectionController
             return ['Verbindung getrennt.', 'info'];
         }
 
+        if (isset($body['push'])) {
+            return $this->push();
+        }
+
         if (!isset($body['connect'])) {
             return [null, 'info'];
         }
@@ -116,6 +120,27 @@ final class ConnectionController
         }
 
         return ['Verbunden. Das Inventar wurde bereits gemeldet.', 'success'];
+    }
+
+    /**
+     * @return array{0: string, 1: string}
+     */
+    private function push(): array
+    {
+        try {
+            $response = $this->hubClient->pushInventory($this->inventoryBuilder->build());
+        } catch (HubConnectionException $e) {
+            return [$e->getMessage(), 'danger'];
+        }
+
+        // The hub only stores a snapshot when the fingerprint changed. Saying
+        // so avoids the impression that nothing happened.
+        return [
+            ($response['stored'] ?? false)
+                ? 'Inventar gemeldet. Der Hub hat eine Veränderung gespeichert.'
+                : 'Inventar gemeldet. Es hat sich nichts geändert, der Hub speichert daher keinen neuen Stand.',
+            'success',
+        ];
     }
 
     /**

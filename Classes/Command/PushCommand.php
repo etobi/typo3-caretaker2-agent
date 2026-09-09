@@ -61,7 +61,7 @@ final class PushCommand extends Command
         }
 
         try {
-            $this->hubClient->pushInventory($inventory);
+            $response = $this->hubClient->pushInventory($inventory);
         } catch (HubConnectionException $e) {
             // Fehlercode, damit eine Deployment-Pipeline es merkt. Wem das
             // egal ist, hängt "|| true" an.
@@ -71,9 +71,13 @@ final class PushCommand extends Command
         }
 
         $io->success(sprintf(
-            'Inventar gemeldet (%d Provider, Schema v%d).',
+            'Inventar gemeldet (%d Provider, Schema v%d). %s',
             count($inventory['providers']),
-            $inventory['schemaVersion']
+            $inventory['schemaVersion'],
+            // The hub only stores a snapshot when the fingerprint changed.
+            ($response['stored'] ?? false)
+                ? 'Der Hub hat eine Veränderung gespeichert.'
+                : 'Unverändert, kein neuer Stand gespeichert.'
         ));
 
         foreach ($inventory['providers'] as $key => $result) {
