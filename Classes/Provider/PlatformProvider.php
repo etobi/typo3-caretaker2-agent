@@ -77,7 +77,9 @@ final class PlatformProvider implements ProviderInterface
         $extensions = [];
 
         foreach (get_loaded_extensions() as $name) {
-            $lower = strtolower($name);
+            // Composer's spelling: lowercase, spaces to hyphens. "Zend OPcache"
+            // becomes ext-zend-opcache.
+            $lower = str_replace(' ', '-', strtolower($name));
             if ($lower === 'core' || $lower === 'standard') {
                 continue;
             }
