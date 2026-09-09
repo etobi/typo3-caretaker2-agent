@@ -52,7 +52,7 @@ final class ScheduleCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription('Legt den täglichen Scheduler-Task für den Push an');
+        $this->setDescription('Creates the daily scheduler task for the push');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -68,7 +68,7 @@ final class ScheduleCommand extends Command
             return Command::FAILURE;
         }
 
-        $io->success('Täglicher Scheduler-Task angelegt.');
+        $io->success('Daily scheduler task created.');
 
         return Command::SUCCESS;
     }

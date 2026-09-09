@@ -105,6 +105,9 @@
             <trans-unit id="error.noToken">
                 <source>The hub returned no token. Is the code still valid?</source>
             </trans-unit>
+            <trans-unit id="error.schedulerMissing">
+                <source>The scheduler extension is not installed.</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

@@ -139,6 +139,10 @@
                 <source>The hub returned no token. Is the code still valid?</source>
                 <target>Der Hub hat kein Token zurückgegeben. Ist der Code noch gültig?</target>
             </trans-unit>
+            <trans-unit id="error.schedulerMissing" approved="yes">
+                <source>The scheduler extension is not installed.</source>
+                <target>Die Extension scheduler ist nicht installiert.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

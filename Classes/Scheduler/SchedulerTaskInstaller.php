@@ -74,7 +74,7 @@ final class SchedulerTaskInstaller
     public function install(): void
     {
         if (!$this->isAvailable()) {
-            throw new SchedulerTaskException('Die Extension "scheduler" ist nicht installiert.');
+            throw new SchedulerTaskException($this->ll('error.schedulerMissing'));
         }
 
         if ($this->exists()) {
@@ -82,7 +82,7 @@ final class SchedulerTaskInstaller
         }
 
         $task = GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Task\ExecuteSchedulableCommandTask::class);
-        $task->setDescription('Meldet das Inventar dieser Instanz an den Caretaker2 Hub.');
+        $task->setDescription('Reports the inventory of this instance to the Caretaker2 hub.');
 
         if ($this->usesTaskTypeApi()) {
             $task->setTaskType(self::COMMAND);

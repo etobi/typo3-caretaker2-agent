@@ -40,10 +40,10 @@ final class ConnectCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Verbindet diese Instanz mit einem Hub')
-            ->addArgument('hub-url', InputArgument::REQUIRED, 'Basis-URL des Hubs')
-            ->addArgument('code', InputArgument::REQUIRED, 'Enrollment-Code aus dem Hub')
-            ->addArgument('instance-url', InputArgument::OPTIONAL, 'URL dieser Instanz');
+            ->setDescription('Connects this instance to a hub')
+            ->addArgument('hub-url', InputArgument::REQUIRED, 'Base URL of the hub')
+            ->addArgument('code', InputArgument::REQUIRED, 'Enrollment code from the hub')
+            ->addArgument('instance-url', InputArgument::OPTIONAL, 'URL of this instance');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -51,7 +51,7 @@ final class ConnectCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         if ($this->tokenStorage->isManagedByEnvironment()) {
-            $io->error('Token kommt aus der Umgebung (CARETAKER2_TOKEN) und wird hier nicht überschrieben.');
+            $io->error('The token comes from the environment (CARETAKER2_TOKEN) and is not overwritten here.');
 
             return Command::FAILURE;
         }
@@ -70,7 +70,7 @@ final class ConnectCommand extends Command
             return Command::FAILURE;
         }
 
-        $io->success('Verbunden. Jetzt "caretaker2:push" ausführen oder den Scheduler-Task anlegen.');
+        $io->success('Connected. Run "caretaker2:push" now, or create the scheduler task.');
 
         return Command::SUCCESS;
     }

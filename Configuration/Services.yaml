@@ -41,12 +41,12 @@ services:
   # letztere ist in v13 entfallen, der Tag trägt von v10 bis v14.
   Caretaker2\Agent\Command\ConnectCommand:
     tags:
-      - { name: 'console.command', command: 'caretaker2:connect', description: 'Verbindet diese Instanz mit einem Hub', schedulable: false }
+      - { name: 'console.command', command: 'caretaker2:connect', description: 'Connects this instance to a hub', schedulable: false }
 
   Caretaker2\Agent\Command\ScheduleCommand:
     tags:
-      - { name: 'console.command', command: 'caretaker2:schedule', description: 'Legt den täglichen Scheduler-Task für den Push an', schedulable: false }
+      - { name: 'console.command', command: 'caretaker2:schedule', description: 'Creates the daily scheduler task for the push', schedulable: false }
 
   Caretaker2\Agent\Command\PushCommand:
     tags:
-      - { name: 'console.command', command: 'caretaker2:push', description: 'Meldet das Inventar dieser Instanz an den Hub', schedulable: true }
+      - { name: 'console.command', command: 'caretaker2:push', description: 'Reports the inventory of this instance to the hub', schedulable: true }

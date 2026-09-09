@@ -40,12 +40,12 @@ final class PushCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Sammelt das Inventar dieser Instanz und meldet es an den Hub')
+            ->setDescription('Collects the inventory of this instance and reports it to the hub')
             ->addOption(
                 'print',
                 'p',
                 InputOption::VALUE_NONE,
-                'Inventar ausgeben statt senden — zeigt genau, was diese Instanz verlassen würde'
+                'Print the inventory instead of sending it — shows exactly what would leave this instance'
             );
     }
 
@@ -63,21 +63,21 @@ final class PushCommand extends Command
         try {
             $response = $this->hubClient->pushInventory($inventory);
         } catch (HubConnectionException $e) {
-            // Fehlercode, damit eine Deployment-Pipeline es merkt. Wem das
-            // egal ist, hängt "|| true" an.
+            // A failure code, so a deployment pipeline notices. Whoever does
+            // not care appends "|| true".
             $io->error($e->getMessage());
 
             return Command::FAILURE;
         }
 
         $io->success(sprintf(
-            'Inventar gemeldet (%d Provider, Schema v%d). %s',
+            'Inventory reported (%d providers, schema v%d). %s',
             count($inventory['providers']),
             $inventory['schemaVersion'],
             // The hub only stores a snapshot when the fingerprint changed.
             ($response['stored'] ?? false)
-                ? 'Der Hub hat eine Veränderung gespeichert.'
-                : 'Unverändert, kein neuer Stand gespeichert.'
+                ? 'The hub stored a change.'
+                : 'Unchanged, no new state stored.'
         ));
 
         foreach ($inventory['providers'] as $key => $result) {
