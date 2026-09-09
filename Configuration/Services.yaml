@@ -22,6 +22,13 @@ services:
     arguments:
       $providers: !tagged_iterator caretaker2.provider
 
+  # Dieselbe Quelle, aus der sich auch TYPO3s StatusRegistry speist. Ohne die
+  # Extension "reports" trägt den Tag niemand, und der Iterator bleibt leer —
+  # eine Abhängigkeit entsteht dadurch nicht.
+  Caretaker2\Agent\Provider\ReportsProvider:
+    arguments:
+      $statusProviders: !tagged_iterator reports.status
+
   # Modul-Routen werden über den Container aufgelöst, der Controller muss
   # deshalb public sein. Das Attribut #[AsController] täte dasselbe, gibt es
   # aber erst ab v12 — und der Agent muss v11 tragen.

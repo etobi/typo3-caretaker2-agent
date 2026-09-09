@@ -32,7 +32,7 @@
 
             <form method="post" class="mb-4">
                 <button type="submit" name="push" value="1" class="btn btn-primary">
-                    Jetzt an den Hub melden
+                    Daten jetzt senden
                 </button>
                 <f:if condition="{managedByEnvironment}">
                     <f:else>
@@ -78,9 +78,8 @@
         </f:else>
     </f:if>
 
-    <h2>Was diese Instanz meldet</h2>
-    <p>Agent-Version {agentVersion}. Der Agent liest ausschließlich — er verändert nichts
-       an dieser Installation und nimmt keine Befehle von außen entgegen.</p>
+    <h2>Inventar</h2>
+    <p>Agent-Version {agentVersion}.</p>
 
     <div class="table-fit mb-3">
         <table class="table table-striped">
@@ -102,7 +101,6 @@
 
     <details class="mb-3">
         <summary>Vollständiges Inventar ansehen</summary>
-        <p class="text-body-secondary mt-2">Genau diese Daten verlassen die Instanz — sonst nichts.</p>
         <pre style="max-height:24rem;overflow:auto"><code>{inventoryJson}</code></pre>
     </details>
 

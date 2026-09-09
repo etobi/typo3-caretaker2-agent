@@ -17,5 +17,8 @@
         "typo3/cms": {
             "extension-key": "caretaker2_agent"
         }
+    },
+    "suggest": {
+        "typo3/cms-reports": "Damit meldet der Agent auch die Prüfungen, die TYPO3 selbst über sein Reports-Framework durchführt."
     }
 }
