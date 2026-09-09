@@ -1,0 +1,137 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+    <h1>Caretaker2</h1>
+
+    <f:if condition="{message}">
+        <div class="callout callout-{messageSeverity}">
+            <div class="callout-content">
+                <div class="callout-body">{message}</div>
+            </div>
+        </div>
+    </f:if>
+
+    <f:if condition="{connected}">
+        <f:then>
+            <div class="callout callout-success">
+                <div class="callout-content">
+                    <div class="callout-title">Verbunden</div>
+                    <div class="callout-body">
+                        <p>Diese Instanz meldet ihr Inventar an <strong>{hubUrl}</strong>.</p>
+                        <f:if condition="{managedByEnvironment}">
+                            <p class="mb-0">Die Verbindung ist über Umgebungsvariablen gesetzt
+                               und lässt sich hier nicht ändern.</p>
+                        </f:if>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout callout-{f:if(condition: schedulerTaskExists, then: 'success', else: 'warning')}">
+                <div class="callout-content">
+                    <div class="callout-title">Täglich melden</div>
+                    <div class="callout-body">
+                        <f:if condition="{schedulerTaskExists}">
+                            <f:then>
+                                <p class="mb-0">Ein Scheduler-Task für <code>{pushCommand}</code> ist
+                                   eingerichtet. Läuft der Cronjob, meldet sich diese Instanz von
+                                   selbst.</p>
+                            </f:then>
+                            <f:else>
+                                <p>Ohne täglichen Lauf meldet sich diese Instanz nur, wenn jemand
+                                   den Knopf drückt.</p>
+                                <f:if condition="{schedulerAvailable}">
+                                    <f:then>
+                                        <form method="post">
+                                            <button type="submit" name="installTask" value="1"
+                                                    class="btn btn-default">
+                                                Täglichen Scheduler-Task anlegen
+                                            </button>
+                                        </form>
+                                    </f:then>
+                                    <f:else>
+                                        <p class="mb-0">Die Extension <code>scheduler</code> ist nicht
+                                           installiert. Alternativ lässt sich
+                                           <code>{pushCommand}</code> direkt per Cron aufrufen.</p>
+                                    </f:else>
+                                </f:if>
+                            </f:else>
+                        </f:if>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" class="mb-4">
+                <button type="submit" name="push" value="1" class="btn btn-primary">
+                    Daten jetzt senden
+                </button>
+                <f:if condition="{managedByEnvironment}">
+                    <f:else>
+                        <button type="submit" name="disconnect" value="1" class="btn btn-default">
+                            Verbindung trennen
+                        </button>
+                    </f:else>
+                </f:if>
+            </form>
+        </f:then>
+        <f:else>
+            <div class="callout callout-info">
+                <div class="callout-content">
+                    <div class="callout-title">Mit einem Hub verbinden</div>
+                    <div class="callout-body">
+                        <p class="mb-0">Im Hub unter <strong>Caretaker2 &rarr; Instanzen</strong>
+                           einen Code erzeugen und hier eintragen.</p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" class="mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="c2-hub">Adresse des Hubs</label>
+                            <input type="url" class="form-control" id="c2-hub" name="hubUrl"
+                                   value="{suggestedHubUrl}" placeholder="https://caretaker.example.com"
+                                   required="required">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label" for="c2-code">Code</label>
+                            <input type="text" class="form-control" id="c2-code" name="code"
+                                   placeholder="ABCD-1234" style="text-transform:uppercase"
+                                   autocomplete="off" required="required">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" name="connect" value="1" class="btn btn-primary">Verbinden</button>
+            </form>
+        </f:else>
+    </f:if>
+
+    <h2>Inventar</h2>
+    <p>Agent-Version {agentVersion}.</p>
+
+    <div class="table-fit mb-3">
+        <table class="table table-striped">
+            <thead>
+                <tr><th>Provider</th><th>Zustand</th></tr>
+            </thead>
+            <tbody>
+                <f:for each="{providers}" as="provider">
+                    <tr>
+                        <td class="col-nowrap"><code>{provider.key}</code></td>
+                        <td class="col-nowrap">
+                            <span class="badge badge-{provider.severity}">{provider.status}</span>
+                        </td>
+                    </tr>
+                </f:for>
+            </tbody>
+        </table>
+    </div>
+
+    <details class="mb-3">
+        <summary>Vollständiges Inventar ansehen</summary>
+        <pre style="max-height:24rem;overflow:auto"><code>{inventoryJson}</code></pre>
+    </details>
+
+</html>

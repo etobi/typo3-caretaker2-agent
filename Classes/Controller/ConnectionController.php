@@ -102,13 +102,14 @@ final class ConnectionController
             return $view->renderResponse('Connection/Index');
         }
 
+        // Eigene Hülle ohne <f:layout name="Module">: Das Layout gibt es in v11
+        // nicht, und ein gleichnamiges mitzuliefern würde in v12 und v13 das
+        // des Cores verdrängen. Der Inhalt selbst liegt für beide Wege im
+        // selben Partial.
         $standalone = GeneralUtility::makeInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class);
         $standalone->setTemplateRootPaths(['EXT:caretaker2_agent/Resources/Private/Templates/']);
-        $standalone->setLayoutRootPaths([
-            'EXT:caretaker2_agent/Resources/Private/Layouts/',
-            'EXT:backend/Resources/Private/Layouts/',
-        ]);
-        $standalone->setTemplate('Connection/Index');
+        $standalone->setPartialRootPaths(['EXT:caretaker2_agent/Resources/Private/Partials/']);
+        $standalone->setTemplate('Connection/IndexV11');
         $standalone->assignMultiple($variables);
 
         $view->setContent($standalone->render());
