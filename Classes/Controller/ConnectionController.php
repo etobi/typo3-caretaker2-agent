@@ -69,7 +69,7 @@ final class ConnectionController
             'inventoryJson' => json_encode($inventory, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
             'message' => $message,
             'messageSeverity' => $messageSeverity,
-            'suggestedInstanceUrl' => $this->currentBaseUrl($request),
+            'suggestedHubUrl' => $this->tokenStorage->getHubUrl(),
         ]);
 
         return $view->renderResponse('Connection/Index');
