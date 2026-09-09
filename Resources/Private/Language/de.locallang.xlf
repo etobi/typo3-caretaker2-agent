@@ -147,6 +147,22 @@
                 <source>The hub is unreachable (%s): %s</source>
                 <target>Hub nicht erreichbar (%s): %s</target>
             </trans-unit>
+            <trans-unit id="schedule.notRecurring" approved="yes">
+                <source>A scheduler task for %s exists, but it does not repeat — it runs once and never again. Creating it anew fixes that.</source>
+                <target>Ein Scheduler-Task für %s ist vorhanden, wiederholt sich aber nicht — er läuft einmal und danach nie wieder. Neu anlegen behebt das.</target>
+            </trans-unit>
+            <trans-unit id="schedule.repair" approved="yes">
+                <source>Create the task again</source>
+                <target>Task neu anlegen</target>
+            </trans-unit>
+            <trans-unit id="message.taskRepaired" approved="yes">
+                <source>The scheduler task has been created again and repeats daily now.</source>
+                <target>Der Scheduler-Task wurde neu angelegt und wiederholt sich jetzt täglich.</target>
+            </trans-unit>
+            <trans-unit id="error.taskRemoveFailed" approved="yes">
+                <source>The old task could not be removed: %s</source>
+                <target>Der alte Task ließ sich nicht entfernen: %s</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

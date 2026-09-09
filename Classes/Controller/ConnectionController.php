@@ -77,6 +77,7 @@ final class ConnectionController
             'suggestedHubUrl' => $this->tokenStorage->getHubUrl(),
             'schedulerAvailable' => $this->scheduler->isAvailable(),
             'schedulerTaskExists' => $this->scheduler->exists(),
+            'schedulerTaskRecurring' => $this->scheduler->isRecurring(),
             'pushCommand' => SchedulerTaskInstaller::COMMAND,
         ];
 
@@ -140,6 +141,16 @@ final class ConnectionController
             }
 
             return [$this->ll('message.taskCreated'), 'success'];
+        }
+
+        if (isset($body['repairTask'])) {
+            try {
+                $this->scheduler->repair();
+            } catch (SchedulerTaskException $e) {
+                return [$e->getMessage(), 'warning'];
+            }
+
+            return [$this->ll('message.taskRepaired'), 'success'];
         }
 
         if (!isset($body['connect'])) {

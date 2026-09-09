@@ -36,8 +36,63 @@ final class SchedulerTaskInstaller
 
     public function exists(): bool
     {
-        if (!$this->isAvailable()) {
+        return $this->findUid() !== 0;
+    }
+
+    /**
+     * Whether the existing task actually repeats.
+     *
+     * "A task exists" is not the same as "this instance reports daily". A task
+     * created on v14 before the cron fix carries an interval the DataHandler
+     * dropped: it ran once and then never again, while the module cheerfully
+     * reported everything was in place. That is the failure this whole product
+     * exists to catch, so it must not happen in its own setup.
+     *
+     * Returns true when we cannot tell. Crying wolf over a task that is
+     * probably fine would be worse than staying quiet.
+     */
+    public function isRecurring(): bool
+    {
+        $uid = $this->findUid();
+        if ($uid === 0) {
             return false;
+        }
+
+        try {
+            $task = $this->fetchTask($uid);
+            $execution = $task === null ? null : $task->getExecution();
+        } catch (\Throwable $e) {
+            return true;
+        }
+
+        if ($execution === null || !method_exists($execution, 'getInterval')) {
+            return true;
+        }
+
+        return (int)$execution->getInterval() > 0 || (string)$execution->getCronCmd() !== '';
+    }
+
+    /**
+     * Removes the task and creates it again. The only repair that works across
+     * all four versions — editing an execution in place needs a different API
+     * in each of them.
+     *
+     * @throws SchedulerTaskException
+     */
+    public function repair(): void
+    {
+        $uid = $this->findUid();
+        if ($uid !== 0) {
+            $this->remove($uid);
+        }
+
+        $this->install();
+    }
+
+    private function findUid(): int
+    {
+        if (!$this->isAvailable()) {
+            return 0;
         }
 
         $qb = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
@@ -46,14 +101,55 @@ final class SchedulerTaskInstaller
         $column = $this->usesTaskTypeApi() ? 'tasktype' : 'serialized_task_object';
 
         return (int)$qb
-            ->count('uid')
+            ->select('uid')
             ->from(self::TABLE)
             ->where(
                 $qb->expr()->eq('deleted', $qb->createNamedParameter(0, \Doctrine\DBAL\ParameterType::INTEGER)),
                 $qb->expr()->like($column, $qb->createNamedParameter('%' . self::COMMAND . '%'))
             )
+            ->setMaxResults(1)
             ->executeQuery()
-            ->fetchOne() > 0;
+            ->fetchOne();
+    }
+
+    /**
+     * @return object|null
+     */
+    private function fetchTask(int $uid)
+    {
+        if (class_exists(\TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class)) {
+            return GeneralUtility::makeInstance(
+                \TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class
+            )->findByUid($uid);
+        }
+
+        return GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Scheduler::class)->fetchTask($uid);
+    }
+
+    /**
+     * @throws SchedulerTaskException
+     */
+    private function remove(int $uid): void
+    {
+        try {
+            $task = $this->fetchTask($uid);
+
+            if ($task === null) {
+                return;
+            }
+
+            if (class_exists(\TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class)) {
+                GeneralUtility::makeInstance(
+                    \TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class
+                )->remove($task);
+
+                return;
+            }
+
+            $task->remove();
+        } catch (\Throwable $e) {
+            throw new SchedulerTaskException($this->ll('error.taskRemoveFailed', $e->getMessage()), 0, $e);
+        }
     }
 
     /**

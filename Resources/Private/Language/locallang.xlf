@@ -111,6 +111,18 @@
             <trans-unit id="error.hubUnreachable">
                 <source>The hub is unreachable (%s): %s</source>
             </trans-unit>
+            <trans-unit id="schedule.notRecurring">
+                <source>A scheduler task for %s exists, but it does not repeat — it runs once and never again. Creating it anew fixes that.</source>
+            </trans-unit>
+            <trans-unit id="schedule.repair">
+                <source>Create the task again</source>
+            </trans-unit>
+            <trans-unit id="message.taskRepaired">
+                <source>The scheduler task has been created again and repeats daily now.</source>
+            </trans-unit>
+            <trans-unit id="error.taskRemoveFailed">
+                <source>The old task could not be removed: %s</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

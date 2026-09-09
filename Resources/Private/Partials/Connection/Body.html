@@ -25,13 +25,25 @@
                 </div>
             </div>
 
-            <div class="callout callout-{f:if(condition: schedulerTaskExists, then: 'success', else: 'warning')}">
+            <div class="callout callout-{f:if(condition: '{schedulerTaskExists} && {schedulerTaskRecurring}', then: 'success', else: 'warning')}">
                 <div class="callout-content">
                     <div class="callout-title"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:schedule.title"/></div>
                     <div class="callout-body">
                         <f:if condition="{schedulerTaskExists}">
                             <f:then>
-                                <p class="mb-0"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:schedule.exists" arguments="{0: '{pushCommand}'}"/></p>
+                                <f:if condition="{schedulerTaskRecurring}">
+                                    <f:then>
+                                        <p class="mb-0"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:schedule.exists" arguments="{0: '{pushCommand}'}"/></p>
+                                    </f:then>
+                                    <f:else>
+                                        <p><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:schedule.notRecurring" arguments="{0: '{pushCommand}'}"/></p>
+                                        <form method="post">
+                                            <button type="submit" name="repairTask" value="1" class="btn btn-default">
+                                                <f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:schedule.repair"/>
+                                            </button>
+                                        </form>
+                                    </f:else>
+                                </f:if>
                             </f:then>
                             <f:else>
                                 <p><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:schedule.missing"/></p>
