@@ -125,7 +125,9 @@ final class ReportsProvider implements ProviderInterface
         $checked = 0;
         $skipped = [];
 
-        foreach ($this->allStatusProviders() as $provider) {
+        foreach ($this->allStatusProviders() as $entry) {
+            $provider = $entry['provider'];
+
             try {
                 $statuses = $provider->getStatus();
             } catch (\Throwable $e) {
@@ -150,7 +152,7 @@ final class ReportsProvider implements ProviderInterface
                 }
 
                 $issues[] = [
-                    'provider' => $this->labelOf($provider),
+                    'provider' => $entry['label'] !== null ? $entry['label'] : $this->labelOf($provider),
                     'title' => (string)$status->getTitle(),
                     'value' => (string)$status->getValue(),
                     'severity' => self::SEVERITY_LABELS[$severity],
@@ -168,32 +170,39 @@ final class ReportsProvider implements ProviderInterface
      * finds nothing there and reports "ok, zero checked" — which reads like an
      * all-clear and is the opposite of one.
      *
-     * @return list<object>
+     * The array is keyed by section — "typo3", "security", "configuration" —
+     * and that key is what v12 later turned into getLabel(). Carrying it along
+     * makes a finding read the same on either version.
+     *
+     * @return list<array{provider: object, label: string|null}>
      */
     private function allStatusProviders(): array
     {
         $providers = [];
         foreach ($this->statusProviders as $provider) {
-            $providers[] = $provider;
+            $providers[] = ['provider' => $provider, 'label' => null];
         }
 
         if ($providers !== []) {
             return $providers;
         }
 
-        $registered = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tx_reports']['status']['providers'] ?? [];
+        $registered = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['reports']['tx_reports']['status']['providers'] ?? [];
         if (!is_array($registered)) {
             return $providers;
         }
 
-        foreach ($registered as $section) {
-            foreach ((array)$section as $className) {
+        foreach ($registered as $section => $classNames) {
+            foreach ((array)$classNames as $className) {
                 if (!is_string($className) || !class_exists($className)) {
                     continue;
                 }
 
                 try {
-                    $providers[] = GeneralUtility::makeInstance($className);
+                    $providers[] = [
+                        'provider' => GeneralUtility::makeInstance($className),
+                        'label' => (string)$section,
+                    ];
                 } catch (\Throwable $e) {
                     // A provider that cannot even be built is one we cannot ask.
                 }
@@ -212,6 +221,13 @@ final class ReportsProvider implements ProviderInterface
     {
         try {
             $GLOBALS['LANG'] = GeneralUtility::makeInstance(LanguageServiceFactory::class)->create('default');
+
+            // v11 providers read their titles with getLL(), which answers only
+            // once the file is loaded. TYPO3 does that in the report class we
+            // bypass, so without this every v11 status arrives untitled.
+            if (method_exists($GLOBALS['LANG'], 'includeLLFile')) {
+                $GLOBALS['LANG']->includeLLFile('EXT:reports/Resources/Private/Language/locallang_reports.xlf');
+            }
         } catch (\Throwable $e) {
             // Leave whatever was there. Providers that need it will report as
             // skipped, which is visible.
