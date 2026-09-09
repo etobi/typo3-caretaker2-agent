@@ -7,13 +7,13 @@ namespace Caretaker2\Agent\Connection;
 use TYPO3\CMS\Core\Registry;
 
 /**
- * Hub-Adresse und Token.
+ * The hub address and the token.
  *
- * Zwei Quellen, mit Absicht: sys_registry ist über das Backend-Modul
- * pflegbar, ohne Deployment. Umgebungsvariablen gewinnen aber immer —
- * und das ist der Punkt: Eine Produktionsdatenbank, die nach Staging
- * kopiert wird, bringt ihr Token mit. Ohne den Vorrang der Umgebung
- * würde die Staging-Kopie sich anschließend als Produktion melden.
+ * Two sources, on purpose: sys_registry can be maintained from the backend
+ * module without a deployment, but the environment always wins. That is the
+ * point — a production database copied to staging brings its token along, and
+ * without the environment taking precedence the staging copy would start
+ * reporting as production.
  */
 final class TokenStorage
 {
@@ -48,8 +48,8 @@ final class TokenStorage
     }
 
     /**
-     * Verrät, ob die Werte aus der Umgebung kommen — das Backend-Modul
-     * muss dann erklären, warum es sie nicht ändern kann.
+     * Says whether the values come from the environment, which the backend
+     * module has to explain when it cannot change them.
      */
     public function isManagedByEnvironment(): bool
     {

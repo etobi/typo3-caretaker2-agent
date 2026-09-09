@@ -5,12 +5,12 @@ declare(strict_types=1);
 use Caretaker2\Agent\Controller\ConnectionController;
 
 /**
- * Modulregistrierung für TYPO3 v12 bis v14.
+ * Module registration for TYPO3 v12 to v14.
  *
- * TODO v11: dort gibt es Configuration/Backend/Modules.php noch nicht,
- * die Registrierung läuft über ext_tables.php mit addModule(). Das ist die
- * einzige Stelle im Agent, an der die Spanne v11–v14 zwei Codepfade
- * erzwingt — alles andere trägt unverändert.
+ * v11 does not read this file; there the registration goes through
+ * ext_tables.php with addModule(). Together with the rendering and the
+ * scheduler task, this is one of the three places in the agent where the span
+ * v11 to v14 forces two code paths.
  */
 return [
     'caretaker2_agent' => [

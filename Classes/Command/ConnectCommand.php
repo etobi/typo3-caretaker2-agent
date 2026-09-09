@@ -15,8 +15,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
- * Dasselbe wie der Knopf im Backend-Modul, nur für Deployment und
- * automatisiertes Provisioning.
+ * The same as the button in the backend module, for deployments and
+ * automated provisioning.
  */
 final class ConnectCommand extends Command
 {

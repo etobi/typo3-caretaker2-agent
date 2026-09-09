@@ -7,11 +7,10 @@ namespace Caretaker2\Agent\Connection;
 use TYPO3\CMS\Core\Http\RequestFactory;
 
 /**
- * Die einzige Stelle, an der der Agent nach außen spricht.
+ * The only place where the agent speaks to the outside.
  *
- * Immer der Agent zum Hub, nie umgekehrt — deshalb funktioniert das auch
- * hinter Firewalls, und deshalb muss die Instanz keinen Endpunkt
- * exponieren.
+ * Always the agent to the hub, never the other way round. That is why it
+ * works behind firewalls, and why the instance has to expose no endpoint.
  */
 final class HubClient
 {
@@ -35,8 +34,8 @@ final class HubClient
     }
 
     /**
-     * Tauscht den kurzlebigen Enrollment-Code gegen ein dauerhaftes Token
-     * und speichert es. Der Code ist damit verbraucht.
+     * Trades the short-lived enrollment code for a lasting token and stores
+     * it. The code is spent afterwards.
      */
     public function enroll(string $hubUrl, string $code, string $instanceUrl): string
     {
@@ -92,8 +91,8 @@ final class HubClient
             'User-Agent' => 'Caretaker2-Agent/' . \Caretaker2\Agent\Inventory\InventoryBuilder::AGENT_VERSION,
         ];
         if ($token !== null) {
-            // Bewusst im Header und nicht im Query-String: Query-Strings
-            // stehen in Access-Logs, Proxy-Logs und Auswertungswerkzeugen.
+            // In the header on purpose, not in the query string: query strings
+            // end up in access logs, proxy logs and analytics tools.
             $headers['Authorization'] = 'Bearer ' . $token;
         }
 

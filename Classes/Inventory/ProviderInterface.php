@@ -5,26 +5,26 @@ declare(strict_types=1);
 namespace Caretaker2\Agent\Inventory;
 
 /**
- * Ein Provider sammelt einen Ausschnitt des Inventars.
+ * A provider collects one part of the inventory.
  *
- * Provider bewerten nichts. Sie entscheiden nicht, ob ein Wert gut oder
- * schlecht ist, und sie kennen keine Schwellwerte — das ist alles Sache
- * des Hubs. Ein Provider liest, und wenn er nicht lesen kann, sagt er das.
+ * Providers judge nothing. They do not decide whether a value is good or bad
+ * and they know no thresholds — that is all the hub's business. A provider
+ * reads, and when it cannot read, it says so.
  *
- * Eigene Provider werden über den Service-Tag "caretaker2.provider"
- * registriert und landen unter ihrem Schlüssel im Inventar. Der Hub muss
- * sie nicht kennen, um sie zu speichern und anzuzeigen.
+ * Providers of your own are registered through the service tag
+ * "caretaker2.provider" and land in the inventory under their key. The hub
+ * does not have to know them to store and show them.
  */
 interface ProviderInterface
 {
     /**
-     * Schlüssel im Inventar, z.B. "core". Kleinbuchstaben, keine Punkte.
+     * The key in the inventory, "core" for instance. Lower case, no dots.
      */
     public function getKey(): string;
 
     /**
-     * Darf nicht werfen. Jeder Fehlerfall ist ein ProviderResult mit
-     * Status degraded oder unavailable — nur so erfährt der Hub davon.
+     * Must not throw. Every failure is a ProviderResult with status degraded
+     * or unavailable — that is the only way the hub gets to hear about it.
      */
     public function collect(): ProviderResult;
 }

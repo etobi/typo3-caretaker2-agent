@@ -14,13 +14,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Der einzige Einstiegspunkt für den Push.
+ * The single entry point for a push.
  *
- * Drei Auslöser, eine Implementierung: nach dem Deployment von Hand, täglich
- * über den eingebauten Scheduler-Task für Konsolenbefehle, und auf Zuruf des
- * Hubs. Ein Console-Command ist außerdem die stabilste Schnittstelle, die
- * TYPO3 über v11 bis v14 anbietet — eigene Scheduler-Task-Klassen haben sich
- * in dieser Spanne mehrfach geändert.
+ * Three triggers, one implementation: by hand after a deployment, daily
+ * through the built-in scheduler task for console commands, and on the hub's
+ * request. A console command is also the most stable interface TYPO3 offers
+ * across v11 to v14 — scheduler task classes of one's own changed several
+ * times in that span.
  */
 final class PushCommand extends Command
 {

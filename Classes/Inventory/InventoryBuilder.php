@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Caretaker2\Agent\Inventory;
 
 /**
- * Setzt aus allen registrierten Providern das Inventar zusammen.
+ * Assembles the inventory from every registered provider.
  */
 final class InventoryBuilder
 {
     /**
-     * Steigt nur bei brechenden Änderungen am Format. Der Hub versteht n-2.
+     * Only rises on breaking changes to the format. The hub understands n-2.
      */
     public const SCHEMA_VERSION = 1;
 
@@ -37,9 +37,9 @@ final class InventoryBuilder
         foreach ($this->providers as $provider) {
             $key = $provider->getKey();
 
-            // Ein Provider soll nicht werfen. Tut er es doch, darf das nicht
-            // das ganze Inventar kosten — dann fehlt eben dieser eine Teil,
-            // und der Hub erfährt warum.
+            // A provider is not supposed to throw. If one does, it must not cost
+            // the whole inventory — that one part is missing, and the hub is
+            // told why.
             try {
                 $providers[$key] = $provider->collect();
             } catch (\Throwable $e) {
@@ -62,9 +62,8 @@ final class InventoryBuilder
     }
 
     /**
-     * Fingerabdruck über den Inhalt — ohne generatedAt, sonst wäre jeder
-     * Push eine Änderung. Der Hub speichert nur, was sich wirklich
-     * unterscheidet.
+     * A fingerprint over the content, without generatedAt — otherwise every
+     * push would be a change. The hub only stores what actually differs.
      */
     public function fingerprint(array $inventory): string
     {

@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Caretaker2\Agent\Inventory;
 
 /**
- * Das Ergebnis eines Providers — Daten und Zustand in einem.
+ * What a provider found: data and state in one.
  *
- * Der Zustand ist Pflicht, nicht Beiwerk: Ein Hub, der einen still
- * fehlgeschlagenen Provider nicht von einem leeren Ergebnis unterscheiden
- * kann, meldet im Fehlerfall Entwarnung. Deshalb gibt es kein "einfach
- * nichts zurückgeben".
+ * The state is required, not decoration. A hub that cannot tell a silently
+ * failed provider from an empty result gives an all-clear precisely when
+ * something went wrong. Which is why "just return nothing" is not offered.
  */
 final class ProviderResult implements \JsonSerializable
 {
@@ -50,7 +49,7 @@ final class ProviderResult implements \JsonSerializable
     }
 
     /**
-     * Teilweise geliefert. Was fehlt, steht in reason und message.
+     * Partly delivered. What is missing is in reason and message.
      *
      * @param array<string, mixed> $data
      */
@@ -60,7 +59,7 @@ final class ProviderResult implements \JsonSerializable
     }
 
     /**
-     * Nichts geliefert — und das ist eine Aussage, kein Schweigen.
+     * Nothing delivered — which is a statement, not silence.
      */
     public static function unavailable(string $reason, string $message): self
     {

@@ -9,16 +9,15 @@ use Caretaker2\Agent\Inventory\ProviderResult;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
- * PHP und Datenbank, so wie diese Instanz sie wirklich vorfindet.
+ * PHP and the database as this instance actually finds them.
  *
- * Der Provider trägt mehr Gewicht, als sein Umfang vermuten lässt: Composer
- * entscheidet anhand der laufenden Umgebung, was installierbar ist. Ohne
- * diese Werte würde der Hub — der auf einer ganz anderen PHP-Version läuft —
- * Updates melden, die auf der Instanz gar nicht möglich sind. Der Hub baut
- * daraus seinen config.platform-Block.
+ * The provider carries more weight than its size suggests: composer decides
+ * what is installable from the environment it runs in. Without these values
+ * the hub — running on an entirely different PHP version — would report
+ * updates the instance cannot take. They become its config.platform block.
  *
- * Gemeldet werden nur Rohwerte. Was davon ein Problem ist, entscheidet der
- * Hub, nicht der Agent.
+ * Raw values only. Which of them is a problem is the hub's call, not the
+ * agent's.
  */
 final class PlatformProvider implements ProviderInterface
 {
@@ -52,8 +51,8 @@ final class PlatformProvider implements ProviderInterface
         $database = $this->collectDatabase();
 
         if ($database === null) {
-            // Teilweise geliefert — und der Hub erfährt genau das, statt
-            // einen fehlenden Datenbankblock für "keine Datenbank" zu halten.
+            // Partly delivered, and the hub is told exactly that instead of
+            // reading a missing database block as "no database".
             return ProviderResult::degraded(
                 $data,
                 'database_version_unavailable',
@@ -67,8 +66,8 @@ final class PlatformProvider implements ProviderInterface
     }
 
     /**
-     * Alle geladenen Extensions mit Version, in der Schreibweise, die
-     * Composer für config.platform erwartet.
+     * Every loaded extension with its version, spelled the way composer
+     * expects it in config.platform.
      *
      * @return array<string, string>
      */
@@ -85,8 +84,8 @@ final class PlatformProvider implements ProviderInterface
             }
 
             $version = phpversion($name);
-            // Manche Extensions melden keine eigene Version. Composer nimmt
-            // dann die PHP-Version an — dieselbe Annahme treffen wir hier.
+            // Some extensions report no version of their own. Composer then
+            // assumes the PHP version, and so do we.
             $extensions['ext-' . $lower] = is_string($version) && $version !== ''
                 ? $version
                 : PHP_VERSION;
@@ -111,9 +110,9 @@ final class PlatformProvider implements ProviderInterface
     }
 
     /**
-     * Doctrine hat die Versions-API zwischen den DBAL-Fassungen mehrfach
-     * verschoben. Statt auf eine Variante zu setzen, gehen wir sie der Reihe
-     * nach durch — der Agent muss von v11 bis v14 tragen.
+     * Doctrine moved the version API around between DBAL releases. Rather than
+     * betting on one variant, they are tried in turn — the agent has to carry
+     * v11 through v14.
      *
      * @return array<string, string>|null
      */
@@ -130,7 +129,7 @@ final class PlatformProvider implements ProviderInterface
             $platformClass = get_class($connection->getDatabasePlatform());
             $platform = $this->normalizePlatform($platformClass);
         } catch (\Throwable $e) {
-            // Plattform unbekannt, Version vielleicht trotzdem ermittelbar.
+            // Platform unknown, the version may still be obtainable.
         }
 
         $version = $this->detectServerVersion($connection);
@@ -158,11 +157,11 @@ final class PlatformProvider implements ProviderInterface
                     return $version;
                 }
             } catch (\Throwable $e) {
-                // weiter unten
+                // handled below
             }
         }
 
-        // Ältere DBAL-Fassungen und alles andere: einfach fragen.
+        // Older DBAL releases and everything else: just ask.
         foreach (['SELECT VERSION()', 'SHOW server_version'] as $sql) {
             try {
                 $result = $connection->executeQuery($sql)->fetchOne();

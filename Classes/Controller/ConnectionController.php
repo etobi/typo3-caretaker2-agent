@@ -18,10 +18,10 @@ use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Das ganze Setup der Instanz: zwei Felder und ein Knopf.
+ * The entire setup of an instance: two fields and a button.
  *
- * Der Vorgänger brauchte hier den Austausch zweier Schlüsselpaare. Genau
- * daran ist er gescheitert — was zu umständlich ist, wird nicht ausgerollt.
+ * Anything more involved does not get rolled out, and a monitoring system
+ * nobody installs monitors nothing.
  */
 final class ConnectionController
 {

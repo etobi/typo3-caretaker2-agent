@@ -40,8 +40,8 @@ final class ScheduleCommand extends Command
             return;
         }
 
-        // Der Rückgabewert ist erst ab v13 der Benutzer; davor liefert die
-        // Methode nichts und setzt nur $GLOBALS.
+        // Only from v13 on does the method return the user; before that it
+        // returns nothing and merely sets $GLOBALS.
         Bootstrap::initializeBackendUser(CommandLineUserAuthentication::class);
 
         $user = $GLOBALS['BE_USER'] ?? null;
