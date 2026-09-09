@@ -28,6 +28,7 @@ services:
   Caretaker2\Agent\Controller\ConnectionController:
     public: true
 
+
   # Registrierung über den DI-Tag, nicht über Configuration/Commands.php:
   # letztere ist in v13 entfallen, der Tag trägt von v10 bis v14.
   Caretaker2\Agent\Command\ConnectCommand:
