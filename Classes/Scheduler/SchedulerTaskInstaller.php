@@ -162,13 +162,9 @@ final class SchedulerTaskInstaller
      */
     private function fetchTask(int $uid)
     {
-        if (class_exists(\TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class)) {
-            return GeneralUtility::makeInstance(
-                \TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class
-            )->findByUid($uid);
-        }
-
-        return GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Scheduler::class)->fetchTask($uid);
+        return $this->usesRepository()
+            ? $this->repository()->findByUid($uid)
+            : GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Scheduler::class)->fetchTask($uid);
     }
 
     /**
@@ -183,15 +179,11 @@ final class SchedulerTaskInstaller
                 return;
             }
 
-            if (class_exists(\TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class)) {
-                GeneralUtility::makeInstance(
-                    \TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class
-                )->remove($task);
-
-                return;
+            if ($this->usesRepository()) {
+                $this->repository()->remove($task);
+            } else {
+                $task->remove();
             }
-
-            $task->remove();
         } catch (\Throwable $e) {
             throw new SchedulerTaskException($this->labels->get('error.taskRemoveFailed', $e->getMessage()), 0, $e);
         }
@@ -204,10 +196,8 @@ final class SchedulerTaskInstaller
     private function persist($task): void
     {
         try {
-            $saved = class_exists(\TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class)
-                ? GeneralUtility::makeInstance(
-                    \TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class
-                )->add($task)
+            $saved = $this->usesRepository()
+                ? $this->repository()->add($task)
                 : GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Scheduler::class)->addTask($task);
         } catch (\Throwable $e) {
             throw new SchedulerTaskException($this->labels->get('error.taskFailed', $e->getMessage()), 0, $e);
@@ -220,6 +210,27 @@ final class SchedulerTaskInstaller
         }
     }
 
+    /**
+     * v12 moved loading and saving tasks from the Scheduler service into a
+     * repository.
+     */
+    private function usesRepository(): bool
+    {
+        return class_exists(\TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class);
+    }
+
+    /**
+     * @return object the SchedulerTaskRepository, on versions that have one
+     */
+    private function repository()
+    {
+        return GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Domain\Repository\SchedulerTaskRepository::class);
+    }
+
+    /**
+     * v14 stores the command as the task type instead of inside a serialised
+     * task object.
+     */
     private function usesTaskTypeApi(): bool
     {
         return method_exists(\TYPO3\CMS\Scheduler\Task\ExecuteSchedulableCommandTask::class, 'setTaskType');
