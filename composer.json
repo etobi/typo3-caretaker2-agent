@@ -1,7 +1,7 @@
 {
     "name": "caretaker2/agent",
     "type": "typo3-cms-extension",
-    "description": "Caretaker2 Agent — collects an inventory and reports it to the hub",
+    "description": "Caretaker2 Agent - Collects an inventory of this instance and reports it to a Caretaker2 hub.",
     "license": "GPL-2.0-or-later",
     "require": {
         "php": "^7.4 || ^8.0",
