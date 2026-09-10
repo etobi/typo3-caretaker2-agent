@@ -10,7 +10,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use TYPO3\CMS\Core\Authentication\CommandLineUserAuthentication;
 use TYPO3\CMS\Core\Core\Bootstrap;
 
 final class ScheduleCommand extends Command
@@ -32,7 +31,11 @@ final class ScheduleCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $this->ensureBackendUser();
+
+        // The console bootstrap creates the _cli_ user but does not log it
+        // in. Saving a scheduler task goes through the DataHandler, and that
+        // wants a logged-in admin. The core's own commands do the same.
+        Bootstrap::initializeBackendAuthentication();
 
         try {
             $this->installer->install();
@@ -45,19 +48,5 @@ final class ScheduleCommand extends Command
         $io->success('Daily scheduler task created.');
 
         return Command::SUCCESS;
-    }
-
-    private function ensureBackendUser(): void
-    {
-        if (($GLOBALS['BE_USER']->user['admin'] ?? 0) === 1) {
-            return;
-        }
-
-        Bootstrap::initializeBackendUser(CommandLineUserAuthentication::class);
-
-        $user = $GLOBALS['BE_USER'] ?? null;
-        if ($user instanceof CommandLineUserAuthentication) {
-            $user->authenticate();
-        }
     }
 }
