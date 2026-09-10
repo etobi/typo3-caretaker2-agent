@@ -131,7 +131,9 @@ final class HubClient
         $body = (string)$response->getBody();
         $decoded = json_decode($body, true);
 
-        if ($status === 401) {
+        // Only a web server that wants Basic Auth challenges with this
+        // header. A 401 without it comes from the hub itself.
+        if ($status === 401 && $response->hasHeader('WWW-Authenticate')) {
             throw new HubConnectionException(
                 $auth === null
                     ? 'The hub asks for HTTP Basic Auth. Enter the credentials when connecting.'
@@ -143,6 +145,14 @@ final class HubClient
             $detail = is_array($decoded) && isset($decoded['error'])
                 ? (string)$decoded['error']
                 : substr($body, 0, 200);
+
+            // The token was sent as a bearer token but the hub saw none:
+            // the web server in front of it swallowed the header.
+            if ($status === 401 && $token !== null && $auth === null) {
+                $detail .= ' The token was sent, so the web server in front of the hub'
+                    . ' probably drops the Authorization header. Apache with PHP-FPM'
+                    . ' or CGI needs "CGIPassAuth On" for it to reach PHP.';
+            }
 
             throw new HubConnectionException(
                 sprintf('The hub answered with HTTP %d: %s', $status, $detail)
