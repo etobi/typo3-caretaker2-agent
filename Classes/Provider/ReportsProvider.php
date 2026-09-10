@@ -76,15 +76,19 @@ final class ReportsProvider implements ProviderInterface
             return $entry['reason'] !== 'requires_request';
         });
 
+        // The checks judge the runtime they happen to run in, so a scheduler
+        // push and a hub-triggered one disagree about some of them. They
+        // describe the current state, not a change to the installation.
         if ($unexpected !== []) {
             return ProviderResult::degraded(
                 $data,
                 'provider_threw',
-                sprintf('%d of TYPO3\'s own checks broke off unexpectedly.', count($unexpected))
+                sprintf('%d of TYPO3\'s own checks broke off unexpectedly.', count($unexpected)),
+                ['*']
             );
         }
 
-        return ProviderResult::ok($data);
+        return ProviderResult::ok($data, ['*']);
     }
 
     /**

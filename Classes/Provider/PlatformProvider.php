@@ -13,6 +13,22 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final class PlatformProvider implements ProviderInterface
 {
+    /**
+     * What differs between a CLI and an FPM run of the same installation:
+     * the SAPI itself, the ini settings it comes with, and the extensions
+     * only one of them loads.
+     */
+    private const VOLATILE = [
+        'php.sapi',
+        'php.settings',
+        'php.extensions.ext-pcntl',
+        'php.extensions.ext-posix',
+        'php.extensions.ext-readline',
+        'php.extensions.ext-cgi-fcgi',
+        'php.extensions.ext-apache2handler',
+        'php.extensions.ext-litespeed',
+    ];
+
     /** @var ConnectionPool */
     private $connectionPool;
 
@@ -48,13 +64,14 @@ final class PlatformProvider implements ProviderInterface
             return ProviderResult::degraded(
                 $data,
                 'database_version_unavailable',
-                'The PHP data is complete, the database version could not be determined.'
+                'The PHP data is complete, the database version could not be determined.',
+                self::VOLATILE
             );
         }
 
         $data['database'] = $database;
 
-        return ProviderResult::ok($data);
+        return ProviderResult::ok($data, self::VOLATILE);
     }
 
     /**
