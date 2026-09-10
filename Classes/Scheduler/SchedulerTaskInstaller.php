@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Caretaker2\Agent\Scheduler;
 
-use Caretaker2\Agent\Backend\Labels;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -22,13 +21,9 @@ final class SchedulerTaskInstaller
     /** @var ConnectionPool */
     private $connectionPool;
 
-    /** @var Labels */
-    private $labels;
-
-    public function __construct(ConnectionPool $connectionPool, Labels $labels)
+    public function __construct(ConnectionPool $connectionPool)
     {
         $this->connectionPool = $connectionPool;
-        $this->labels = $labels;
     }
 
     public function isAvailable(): bool
@@ -81,11 +76,11 @@ final class SchedulerTaskInstaller
     public function install(): void
     {
         if (!$this->isAvailable()) {
-            throw new SchedulerTaskException($this->labels->get('error.schedulerMissing'));
+            throw SchedulerTaskException::schedulerMissing();
         }
 
         if ($this->exists()) {
-            throw new SchedulerTaskException($this->labels->get('error.taskExists'));
+            throw SchedulerTaskException::taskExists();
         }
 
         $task = GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Task\ExecuteSchedulableCommandTask::class);
@@ -185,7 +180,7 @@ final class SchedulerTaskInstaller
                 $task->remove();
             }
         } catch (\Throwable $e) {
-            throw new SchedulerTaskException($this->labels->get('error.taskRemoveFailed', $e->getMessage()), 0, $e);
+            throw SchedulerTaskException::removeFailed($e);
         }
     }
 
@@ -200,13 +195,11 @@ final class SchedulerTaskInstaller
                 ? $this->repository()->add($task)
                 : GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Scheduler::class)->addTask($task);
         } catch (\Throwable $e) {
-            throw new SchedulerTaskException($this->labels->get('error.taskFailed', $e->getMessage()), 0, $e);
+            throw SchedulerTaskException::saveFailed($e);
         }
 
         if ($saved === false) {
-            throw new SchedulerTaskException(
-                $this->labels->get('error.taskNoUser')
-            );
+            throw SchedulerTaskException::noUser();
         }
     }
 

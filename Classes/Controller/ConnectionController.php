@@ -142,7 +142,7 @@ final class ConnectionController
             try {
                 $this->scheduler->install();
             } catch (SchedulerTaskException $e) {
-                return [$e->getMessage(), 'warning'];
+                return [$this->labels->get($e->labelKey, ...$e->labelArguments), 'warning'];
             }
 
             return [$this->labels->get('message.taskCreated'), 'success'];
@@ -152,7 +152,7 @@ final class ConnectionController
             try {
                 $this->scheduler->repair();
             } catch (SchedulerTaskException $e) {
-                return [$e->getMessage(), 'warning'];
+                return [$this->labels->get($e->labelKey, ...$e->labelArguments), 'warning'];
             }
 
             return [$this->labels->get('message.taskRepaired'), 'success'];
