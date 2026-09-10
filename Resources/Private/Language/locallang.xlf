@@ -117,8 +117,11 @@
             <trans-unit id="error.taskRemoveFailed">
                 <source>The old task could not be removed: %s</source>
             </trans-unit>
+            <trans-unit id="connect.basicAuth">
+                <source>Basic Auth</source>
+            </trans-unit>
             <trans-unit id="connect.hubUser">
-                <source>Basic Auth user (optional)</source>
+                <source>Basic Auth user</source>
             </trans-unit>
             <trans-unit id="connect.hubPassword">
                 <source>Basic Auth password</source>

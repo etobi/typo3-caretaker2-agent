@@ -111,21 +111,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label" for="c2-hub-user"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connect.hubUser"/></label>
-                            <input type="text" class="form-control" id="c2-hub-user" name="hubUser" autocomplete="off">
+                <details class="mb-3">
+                    <summary class="text-body-secondary" style="cursor:pointer"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connect.basicAuth"/></summary>
+                    <div class="row mt-2">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="form-label" for="c2-hub-user"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connect.hubUser"/></label>
+                                <input type="text" class="form-control" id="c2-hub-user" name="hubUser" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="form-label" for="c2-hub-password"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connect.hubPassword"/></label>
+                                <input type="password" class="form-control" id="c2-hub-password" name="hubPassword" autocomplete="new-password">
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label" for="c2-hub-password"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connect.hubPassword"/></label>
-                            <input type="password" class="form-control" id="c2-hub-password" name="hubPassword" autocomplete="new-password">
-                        </div>
-                    </div>
-                </div>
-                <p class="text-body-secondary"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connect.basicAuthHint"/></p>
+                    <p class="text-body-secondary mb-0"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:connect.basicAuthHint"/></p>
+                </details>
                 <button type="submit" name="connect" value="1" class="btn btn-primary"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:button.connect"/></button>
             </form>
         </f:else>

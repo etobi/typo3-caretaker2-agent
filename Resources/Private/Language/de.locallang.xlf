@@ -155,9 +155,13 @@
                 <source>The old task could not be removed: %s</source>
                 <target>Der alte Task ließ sich nicht entfernen: %s</target>
             </trans-unit>
+            <trans-unit id="connect.basicAuth" approved="yes">
+                <source>Basic Auth</source>
+                <target>Basic Auth</target>
+            </trans-unit>
             <trans-unit id="connect.hubUser" approved="yes">
-                <source>Basic Auth user (optional)</source>
-                <target>Basic-Auth-Benutzer (optional)</target>
+                <source>Basic Auth user</source>
+                <target>Basic-Auth-Benutzer</target>
             </trans-unit>
             <trans-unit id="connect.hubPassword" approved="yes">
                 <source>Basic Auth password</source>
