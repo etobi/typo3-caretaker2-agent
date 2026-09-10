@@ -15,6 +15,7 @@ services:
       - '../Classes/Inventory/ProviderResult.php'
       - '../Classes/Connection/HubConnectionException.php'
       - '../Classes/Scheduler/SchedulerTaskException.php'
+      - '../Classes/Http/Origin.php'
 
   Caretaker2\Agent\Inventory\InventoryBuilder:
     arguments:

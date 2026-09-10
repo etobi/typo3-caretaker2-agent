@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Caretaker2\Agent\Controller;
 
+use Caretaker2\Agent\Backend\Labels;
 use Caretaker2\Agent\Connection\HubClient;
 use Caretaker2\Agent\Connection\HubConnectionException;
 use Caretaker2\Agent\Connection\TokenStorage;
+use Caretaker2\Agent\Http\Origin;
 use Caretaker2\Agent\Inventory\InventoryBuilder;
 use Caretaker2\Agent\Scheduler\SchedulerTaskException;
 use Caretaker2\Agent\Scheduler\SchedulerTaskInstaller;
@@ -19,8 +21,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class ConnectionController
 {
-    private const LL = 'LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:';
-
     /** @var ModuleTemplateFactory */
     private $moduleTemplateFactory;
 
@@ -36,18 +36,23 @@ final class ConnectionController
     /** @var SchedulerTaskInstaller */
     private $scheduler;
 
+    /** @var Labels */
+    private $labels;
+
     public function __construct(
         ModuleTemplateFactory $moduleTemplateFactory,
         TokenStorage $tokenStorage,
         HubClient $hubClient,
         InventoryBuilder $inventoryBuilder,
-        SchedulerTaskInstaller $scheduler
+        SchedulerTaskInstaller $scheduler,
+        Labels $labels
     ) {
         $this->moduleTemplateFactory = $moduleTemplateFactory;
         $this->tokenStorage = $tokenStorage;
         $this->hubClient = $hubClient;
         $this->inventoryBuilder = $inventoryBuilder;
         $this->scheduler = $scheduler;
+        $this->labels = $labels;
     }
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
@@ -122,11 +127,11 @@ final class ConnectionController
     {
         if (isset($body['disconnect'])) {
             if ($this->tokenStorage->isManagedByEnvironment()) {
-                return [$this->ll('message.disconnectManaged'), 'warning'];
+                return [$this->labels->get('message.disconnectManaged'), 'warning'];
             }
             $this->tokenStorage->forget();
 
-            return [$this->ll('message.disconnected'), 'info'];
+            return [$this->labels->get('message.disconnected'), 'info'];
         }
 
         if (isset($body['push'])) {
@@ -140,7 +145,7 @@ final class ConnectionController
                 return [$e->getMessage(), 'warning'];
             }
 
-            return [$this->ll('message.taskCreated'), 'success'];
+            return [$this->labels->get('message.taskCreated'), 'success'];
         }
 
         if (isset($body['repairTask'])) {
@@ -150,7 +155,7 @@ final class ConnectionController
                 return [$e->getMessage(), 'warning'];
             }
 
-            return [$this->ll('message.taskRepaired'), 'success'];
+            return [$this->labels->get('message.taskRepaired'), 'success'];
         }
 
         if (!isset($body['connect'])) {
@@ -161,11 +166,11 @@ final class ConnectionController
         $code = trim((string)($body['code'] ?? ''));
 
         if ($hubUrl === '' || $code === '') {
-            return [$this->ll('message.credentialsMissing'), 'danger'];
+            return [$this->labels->get('message.credentialsMissing'), 'danger'];
         }
 
         try {
-            $this->hubClient->enroll($hubUrl, $code, $this->currentBaseUrl($request));
+            $this->hubClient->enroll($hubUrl, $code, Origin::fromRequest($request));
         } catch (HubConnectionException $e) {
             return [$e->getMessage(), 'danger'];
         }
@@ -173,10 +178,10 @@ final class ConnectionController
         try {
             $this->hubClient->pushInventory($this->inventoryBuilder->build());
         } catch (HubConnectionException $e) {
-            return [$this->ll('message.connectedPushFailed', $e->getMessage()), 'warning'];
+            return [$this->labels->get('message.connectedPushFailed', $e->getMessage()), 'warning'];
         }
 
-        return [$this->ll('message.connected'), 'success'];
+        return [$this->labels->get('message.connected'), 'success'];
     }
 
     /**
@@ -192,8 +197,8 @@ final class ConnectionController
 
         return [
             ($response['stored'] ?? false)
-                ? $this->ll('message.pushedStored')
-                : $this->ll('message.pushedUnchanged'),
+                ? $this->labels->get('message.pushedStored')
+                : $this->labels->get('message.pushedUnchanged'),
             'success',
         ];
     }
@@ -218,24 +223,4 @@ final class ConnectionController
         return $out;
     }
 
-    private function currentBaseUrl(ServerRequestInterface $request): string
-    {
-        $uri = $request->getUri();
-        $base = $uri->getScheme() . '://' . $uri->getHost();
-        if ($uri->getPort() !== null && !in_array($uri->getPort(), [80, 443], true)) {
-            $base .= ':' . $uri->getPort();
-        }
-
-        return $base;
-    }
-
-    /**
-     * @param string|int ...$args
-     */
-    private function ll(string $key, ...$args): string
-    {
-        $text = $GLOBALS['LANG']->sL(self::LL . $key);
-
-        return $args === [] ? $text : vsprintf($text, $args);
-    }
 }

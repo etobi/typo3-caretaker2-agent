@@ -7,6 +7,7 @@ namespace Caretaker2\Agent\Command;
 use Caretaker2\Agent\Connection\HubClient;
 use Caretaker2\Agent\Connection\HubConnectionException;
 use Caretaker2\Agent\Connection\TokenStorage;
+use Caretaker2\Agent\Http\Origin;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -79,20 +80,9 @@ final class ConnectCommand extends Command
         }
 
         foreach ($this->siteFinder->getAllSites() as $site) {
-            $base = $site->getBase();
-            $host = $base->getHost();
-
-            if ($host === '') {
-                continue;
+            if ($site->getBase()->getHost() !== '') {
+                return Origin::fromUri($site->getBase());
             }
-
-            $url = ($base->getScheme() ?: 'https') . '://' . $host;
-            $port = $base->getPort();
-            if ($port !== null && !in_array($port, [80, 443], true)) {
-                $url .= ':' . $port;
-            }
-
-            return $url;
         }
 
         return 'https://' . (string)(getenv('HOSTNAME') ?: 'unknown');

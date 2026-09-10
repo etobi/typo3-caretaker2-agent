@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Caretaker2\Agent\Scheduler;
 
+use Caretaker2\Agent\Backend\Labels;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -13,8 +14,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 final class SchedulerTaskInstaller
 {
-    private const LL = 'LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:';
-
     public const COMMAND = 'caretaker2:push';
 
     private const TABLE = 'tx_scheduler_task';
@@ -23,9 +22,13 @@ final class SchedulerTaskInstaller
     /** @var ConnectionPool */
     private $connectionPool;
 
-    public function __construct(ConnectionPool $connectionPool)
+    /** @var Labels */
+    private $labels;
+
+    public function __construct(ConnectionPool $connectionPool, Labels $labels)
     {
         $this->connectionPool = $connectionPool;
+        $this->labels = $labels;
     }
 
     public function isAvailable(): bool
@@ -148,7 +151,7 @@ final class SchedulerTaskInstaller
 
             $task->remove();
         } catch (\Throwable $e) {
-            throw new SchedulerTaskException($this->ll('error.taskRemoveFailed', $e->getMessage()), 0, $e);
+            throw new SchedulerTaskException($this->labels->get('error.taskRemoveFailed', $e->getMessage()), 0, $e);
         }
     }
 
@@ -158,11 +161,11 @@ final class SchedulerTaskInstaller
     public function install(): void
     {
         if (!$this->isAvailable()) {
-            throw new SchedulerTaskException($this->ll('error.schedulerMissing'));
+            throw new SchedulerTaskException($this->labels->get('error.schedulerMissing'));
         }
 
         if ($this->exists()) {
-            throw new SchedulerTaskException($this->ll('error.taskExists'));
+            throw new SchedulerTaskException($this->labels->get('error.taskExists'));
         }
 
         $task = GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Task\ExecuteSchedulableCommandTask::class);
@@ -207,12 +210,12 @@ final class SchedulerTaskInstaller
                 )->add($task)
                 : GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Scheduler::class)->addTask($task);
         } catch (\Throwable $e) {
-            throw new SchedulerTaskException($this->ll('error.taskFailed', $e->getMessage()), 0, $e);
+            throw new SchedulerTaskException($this->labels->get('error.taskFailed', $e->getMessage()), 0, $e);
         }
 
         if ($saved === false) {
             throw new SchedulerTaskException(
-                $this->ll('error.taskNoUser')
+                $this->labels->get('error.taskNoUser')
             );
         }
     }
@@ -228,15 +231,5 @@ final class SchedulerTaskInstaller
         $start = mktime(3, $minute, 0) ?: time();
 
         return $start < time() ? $start + self::INTERVAL_SECONDS : $start;
-    }
-
-    /**
-     * @param string|int ...$args
-     */
-    private function ll(string $key, ...$args): string
-    {
-        $text = $GLOBALS['LANG']->sL(self::LL . $key);
-
-        return $args === [] ? $text : vsprintf($text, $args);
     }
 }
