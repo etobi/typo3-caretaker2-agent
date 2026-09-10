@@ -73,13 +73,6 @@
                 <button type="submit" name="push" value="1" class="btn btn-primary">
                     <f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:button.push"/>
                 </button>
-                <f:if condition="{managedByEnvironment}">
-                    <f:else>
-                        <button type="submit" name="disconnect" value="1" class="btn btn-default">
-                            <f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:button.disconnect"/>
-                        </button>
-                    </f:else>
-                </f:if>
             </form>
         </f:then>
         <f:else>
@@ -159,5 +152,21 @@
         <summary><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:inventory.show"/></summary>
         <pre style="max-height:24rem;overflow:auto"><code>{inventoryJson}</code></pre>
     </details>
+
+    <f:if condition="{connected} && !{managedByEnvironment}">
+        <details class="mt-5">
+            <summary class="text-body-secondary" style="cursor:pointer"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:disconnect.summary"/></summary>
+            <form method="post" class="mt-2">
+                <p><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:disconnect.body" arguments="{0: '{hubUrl}'}"/></p>
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="c2-disconnect-confirm" name="disconnectConfirmed" value="1" required="required">
+                    <label class="form-check-label" for="c2-disconnect-confirm"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:disconnect.confirm"/></label>
+                </div>
+                <button type="submit" name="disconnect" value="1" class="btn btn-danger">
+                    <f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:button.disconnect"/>
+                </button>
+            </form>
+        </details>
+    </f:if>
 
 </html>

@@ -39,6 +39,18 @@
             <trans-unit id="button.disconnect">
                 <source>Disconnect</source>
             </trans-unit>
+            <trans-unit id="disconnect.summary">
+                <source>Disconnect this instance from the hub</source>
+            </trans-unit>
+            <trans-unit id="disconnect.body">
+                <source>The token is removed here and pushes stop. The hub at %s keeps this instance and its history until it is deleted there; a scheduler task keeps running and fails until the instance is connected again.</source>
+            </trans-unit>
+            <trans-unit id="disconnect.confirm">
+                <source>Yes, disconnect this instance</source>
+            </trans-unit>
+            <trans-unit id="message.disconnectUnconfirmed">
+                <source>Not disconnected: the confirmation was missing.</source>
+            </trans-unit>
             <trans-unit id="button.connect">
                 <source>Connect</source>
             </trans-unit>

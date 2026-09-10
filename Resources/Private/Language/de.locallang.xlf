@@ -51,6 +51,22 @@
                 <source>Disconnect</source>
                 <target>Verbindung trennen</target>
             </trans-unit>
+            <trans-unit id="disconnect.summary" approved="yes">
+                <source>Disconnect this instance from the hub</source>
+                <target>Diese Instanz vom Hub trennen</target>
+            </trans-unit>
+            <trans-unit id="disconnect.body" approved="yes">
+                <source>The token is removed here and pushes stop. The hub at %s keeps this instance and its history until it is deleted there; a scheduler task keeps running and fails until the instance is connected again.</source>
+                <target>Der Token wird hier entfernt, es werden keine Daten mehr gesendet. Der Hub unter %s behält diese Instanz samt Verlauf, bis sie dort gelöscht wird; ein Scheduler-Task läuft weiter und schlägt fehl, bis die Instanz wieder verbunden ist.</target>
+            </trans-unit>
+            <trans-unit id="disconnect.confirm" approved="yes">
+                <source>Yes, disconnect this instance</source>
+                <target>Ja, diese Instanz trennen</target>
+            </trans-unit>
+            <trans-unit id="message.disconnectUnconfirmed" approved="yes">
+                <source>Not disconnected: the confirmation was missing.</source>
+                <target>Nicht getrennt: die Bestätigung fehlte.</target>
+            </trans-unit>
             <trans-unit id="button.connect" approved="yes">
                 <source>Connect</source>
                 <target>Verbinden</target>

@@ -130,6 +130,11 @@ final class ConnectionController
             if ($this->tokenStorage->isManagedByEnvironment()) {
                 return [$this->labels->get('message.disconnectManaged'), 'warning'];
             }
+            // The browser already insists on the checkbox; a request that
+            // skipped it did not come through the form.
+            if (($body['disconnectConfirmed'] ?? '') !== '1') {
+                return [$this->labels->get('message.disconnectUnconfirmed'), 'warning'];
+            }
             $this->tokenStorage->forget();
 
             return [$this->labels->get('message.disconnected'), 'info'];
