@@ -123,7 +123,7 @@ final class ReportsProvider implements ProviderInterface
                 }
 
                 $issues[] = [
-                    'provider' => $entry['label'] !== null ? $entry['label'] : $this->labelOf($provider),
+                    'provider' => $entry['label'] ?? $this->labelOf($provider),
                     'title' => (string)$status->getTitle(),
                     'value' => (string)$status->getValue(),
                     'severity' => self::SEVERITY_LABELS[$severity],

@@ -7,7 +7,6 @@ namespace Caretaker2\Agent\Provider;
 use Caretaker2\Agent\Inventory\ProviderInterface;
 use Caretaker2\Agent\Inventory\ProviderResult;
 use TYPO3\CMS\Core\Site\Entity\Site;
-use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
@@ -80,7 +79,7 @@ final class SitesProvider implements ProviderInterface
             $languages[] = [
                 'languageId' => $language->getLanguageId(),
                 'title' => $language->getTitle(),
-                'locale' => $this->localeOf($language),
+                'locale' => (string)$language->getLocale(),
                 'base' => $languageBase,
                 'enabled' => $language->isEnabled(),
             ];
@@ -94,13 +93,6 @@ final class SitesProvider implements ProviderInterface
             'languages' => $languages,
             'hosts' => $hosts,
         ];
-    }
-
-    private function localeOf(SiteLanguage $language): string
-    {
-        $locale = $language->getLocale();
-
-        return is_object($locale) ? (string)$locale : (string)$locale;
     }
 
     private function hostOf(string $url): ?string
