@@ -81,6 +81,18 @@
             <trans-unit id="inventory.show">
                 <source>Show the full inventory</source>
             </trans-unit>
+            <trans-unit id="inventory.asOfLastPush">
+                <source>as of the last push, %s</source>
+            </trans-unit>
+            <trans-unit id="inventory.notYetRun">
+                <source>not yet run</source>
+            </trans-unit>
+            <trans-unit id="inventory.runsWithPush">
+                <source>runs with the push; there has been none so far</source>
+            </trans-unit>
+            <trans-unit id="inventory.previewWithout">
+                <source>Without %s: that part takes seconds to collect and is left out of this preview. A push sends it.</source>
+            </trans-unit>
             <trans-unit id="message.disconnectManaged">
                 <source>The connection comes from the environment and cannot be cut here.</source>
             </trans-unit>
@@ -132,14 +144,14 @@
             <trans-unit id="connect.basicAuth">
                 <source>Basic Auth</source>
             </trans-unit>
+            <trans-unit id="connect.basicAuthHint">
+                <source>Only when the hub itself sits behind HTTP Basic Auth. The credentials are kept next to the token and sent with every push.</source>
+            </trans-unit>
             <trans-unit id="connect.hubUser">
                 <source>Basic Auth user</source>
             </trans-unit>
             <trans-unit id="connect.hubPassword">
                 <source>Basic Auth password</source>
-            </trans-unit>
-            <trans-unit id="connect.basicAuthHint">
-                <source>Only when the hub itself sits behind HTTP Basic Auth. The credentials are kept next to the token and sent with every push.</source>
             </trans-unit>
             <trans-unit id="connected.basicAuth">
                 <source>The hub is reached with HTTP Basic Auth as %s.</source>

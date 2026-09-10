@@ -139,8 +139,9 @@
                 <f:for each="{providers}" as="provider">
                     <tr>
                         <td class="col-nowrap"><code>{provider.key}</code></td>
-                        <td class="col-nowrap">
+                        <td>
                             <span class="badge badge-{provider.severity}">{provider.status}</span>
+                            <f:if condition="{provider.note}"><span class="text-body-secondary ms-2">{provider.note}</span></f:if>
                         </td>
                     </tr>
                 </f:for>
@@ -150,6 +151,9 @@
 
     <details class="mb-3">
         <summary><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:inventory.show"/></summary>
+        <f:if condition="{skippedProviders}">
+            <p class="text-body-secondary"><f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:inventory.previewWithout" arguments="{0: skippedProviders}"/></p>
+        </f:if>
         <pre style="max-height:24rem;overflow:auto"><code>{inventoryJson}</code></pre>
     </details>
 

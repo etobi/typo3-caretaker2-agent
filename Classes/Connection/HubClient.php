@@ -26,10 +26,14 @@ final class HubClient
     /** @var TokenStorage */
     private $tokenStorage;
 
-    public function __construct(RequestFactory $requestFactory, TokenStorage $tokenStorage)
+    /** @var PushLog */
+    private $pushLog;
+
+    public function __construct(RequestFactory $requestFactory, TokenStorage $tokenStorage, PushLog $pushLog)
     {
         $this->requestFactory = $requestFactory;
         $this->tokenStorage = $tokenStorage;
+        $this->pushLog = $pushLog;
     }
 
     /**
@@ -82,7 +86,10 @@ final class HubClient
         $hubUser = $this->tokenStorage->getHubUser();
         $auth = $hubUser === null ? null : [$hubUser, $this->tokenStorage->getHubPassword()];
 
-        return $this->send($hubUrl . self::API_BASE . '/inventory', $inventory, $token, $auth);
+        $response = $this->send($hubUrl . self::API_BASE . '/inventory', $inventory, $token, $auth);
+        $this->pushLog->record($inventory, $response);
+
+        return $response;
     }
 
     /**

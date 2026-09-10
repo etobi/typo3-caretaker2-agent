@@ -107,6 +107,22 @@
                 <source>Show the full inventory</source>
                 <target>Vollständiges Inventar ansehen</target>
             </trans-unit>
+            <trans-unit id="inventory.asOfLastPush" approved="yes">
+                <source>as of the last push, %s</source>
+                <target>Stand des letzten Push, %s</target>
+            </trans-unit>
+            <trans-unit id="inventory.notYetRun" approved="yes">
+                <source>not yet run</source>
+                <target>noch nicht gelaufen</target>
+            </trans-unit>
+            <trans-unit id="inventory.runsWithPush" approved="yes">
+                <source>runs with the push; there has been none so far</source>
+                <target>läuft mit dem Push; bisher gab es keinen</target>
+            </trans-unit>
+            <trans-unit id="inventory.previewWithout" approved="yes">
+                <source>Without %s: that part takes seconds to collect and is left out of this preview. A push sends it.</source>
+                <target>Ohne %s: dieser Teil braucht Sekunden zum Sammeln und fehlt in dieser Vorschau. Ein Push schickt ihn mit.</target>
+            </trans-unit>
             <trans-unit id="message.disconnectManaged" approved="yes">
                 <source>The connection comes from the environment and cannot be cut here.</source>
                 <target>Die Verbindung kommt aus der Umgebung und kann hier nicht getrennt werden.</target>
@@ -175,6 +191,10 @@
                 <source>Basic Auth</source>
                 <target>Basic Auth</target>
             </trans-unit>
+            <trans-unit id="connect.basicAuthHint" approved="yes">
+                <source>Only when the hub itself sits behind HTTP Basic Auth. The credentials are kept next to the token and sent with every push.</source>
+                <target>Nur wenn der Hub selbst hinter HTTP Basic Auth liegt. Die Zugangsdaten werden neben dem Token abgelegt und bei jedem Push mitgeschickt.</target>
+            </trans-unit>
             <trans-unit id="connect.hubUser" approved="yes">
                 <source>Basic Auth user</source>
                 <target>Basic-Auth-Benutzer</target>
@@ -182,10 +202,6 @@
             <trans-unit id="connect.hubPassword" approved="yes">
                 <source>Basic Auth password</source>
                 <target>Basic-Auth-Passwort</target>
-            </trans-unit>
-            <trans-unit id="connect.basicAuthHint" approved="yes">
-                <source>Only when the hub itself sits behind HTTP Basic Auth. The credentials are kept next to the token and sent with every push.</source>
-                <target>Nur wenn der Hub selbst hinter HTTP Basic Auth liegt. Die Zugangsdaten werden neben dem Token abgelegt und bei jedem Push mitgeschickt.</target>
             </trans-unit>
             <trans-unit id="connected.basicAuth" approved="yes">
                 <source>The hub is reached with HTTP Basic Auth as %s.</source>

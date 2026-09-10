@@ -8,6 +8,7 @@ use Caretaker2\Agent\AgentVersion;
 use Caretaker2\Agent\Backend\Labels;
 use Caretaker2\Agent\Connection\HubClient;
 use Caretaker2\Agent\Connection\HubConnectionException;
+use Caretaker2\Agent\Connection\PushLog;
 use Caretaker2\Agent\Connection\TokenStorage;
 use Caretaker2\Agent\Http\Origin;
 use Caretaker2\Agent\Inventory\InventoryBuilder;
@@ -17,11 +18,19 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class ConnectionController
 {
+    /**
+     * Providers too slow for a page load: TYPO3's own checks call the
+     * instance over HTTP a dozen times. They run with a push, and the page
+     * shows what the last push found.
+     */
+    private const SKIPPED_ON_PAGE_LOAD = ['reports'];
+
     /** @var ModuleTemplateFactory */
     private $moduleTemplateFactory;
 
@@ -40,13 +49,17 @@ final class ConnectionController
     /** @var Labels */
     private $labels;
 
+    /** @var PushLog */
+    private $pushLog;
+
     public function __construct(
         ModuleTemplateFactory $moduleTemplateFactory,
         TokenStorage $tokenStorage,
         HubClient $hubClient,
         InventoryBuilder $inventoryBuilder,
         SchedulerTaskInstaller $scheduler,
-        Labels $labels
+        Labels $labels,
+        PushLog $pushLog
     ) {
         $this->moduleTemplateFactory = $moduleTemplateFactory;
         $this->tokenStorage = $tokenStorage;
@@ -54,6 +67,7 @@ final class ConnectionController
         $this->inventoryBuilder = $inventoryBuilder;
         $this->scheduler = $scheduler;
         $this->labels = $labels;
+        $this->pushLog = $pushLog;
     }
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
@@ -63,13 +77,17 @@ final class ConnectionController
 
         $message = null;
         $messageSeverity = 'info';
+        $inventory = null;
         $body = $request->getParsedBody();
 
         if ($request->getMethod() === 'POST' && is_array($body)) {
-            [$message, $messageSeverity] = $this->handlePost($body, $request);
+            [$message, $messageSeverity, $inventory] = $this->handlePost($body, $request);
         }
 
-        $inventory = $this->inventoryBuilder->build();
+        // A push already built the whole inventory; a plain page load builds
+        // only what is quick and shows the rest as of the last push.
+        $skipped = $inventory === null ? self::SKIPPED_ON_PAGE_LOAD : [];
+        $inventory = $inventory ?? $this->inventoryBuilder->build($skipped);
 
         $variables = [
             'connected' => $this->tokenStorage->isConnected(),
@@ -77,7 +95,8 @@ final class ConnectionController
             'hubUser' => $this->tokenStorage->getHubUser(),
             'managedByEnvironment' => $this->tokenStorage->isManagedByEnvironment(),
             'agentVersion' => AgentVersion::current(),
-            'providers' => $this->describeProviders($inventory),
+            'providers' => $this->describeProviders($inventory, $skipped),
+            'skippedProviders' => implode(', ', $skipped),
             'inventoryJson' => json_encode($inventory, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
             'message' => $message,
             'messageSeverity' => $messageSeverity,
@@ -121,23 +140,26 @@ final class ConnectionController
     }
 
     /**
+     * Message, its severity, and the inventory when the action built one,
+     * so the page does not build it a second time.
+     *
      * @param array<string, mixed> $body
-     * @return array{0: string|null, 1: string}
+     * @return array{0: string|null, 1: string, 2: array<string, mixed>|null}
      */
     private function handlePost(array $body, ServerRequestInterface $request): array
     {
         if (isset($body['disconnect'])) {
             if ($this->tokenStorage->isManagedByEnvironment()) {
-                return [$this->labels->get('message.disconnectManaged'), 'warning'];
+                return [$this->labels->get('message.disconnectManaged'), 'warning', null];
             }
             // The browser already insists on the checkbox; a request that
             // skipped it did not come through the form.
             if (($body['disconnectConfirmed'] ?? '') !== '1') {
-                return [$this->labels->get('message.disconnectUnconfirmed'), 'warning'];
+                return [$this->labels->get('message.disconnectUnconfirmed'), 'warning', null];
             }
             $this->tokenStorage->forget();
 
-            return [$this->labels->get('message.disconnected'), 'info'];
+            return [$this->labels->get('message.disconnected'), 'info', null];
         }
 
         if (isset($body['push'])) {
@@ -148,31 +170,31 @@ final class ConnectionController
             try {
                 $this->scheduler->install();
             } catch (SchedulerTaskException $e) {
-                return [$this->labels->get($e->labelKey, ...$e->labelArguments), 'warning'];
+                return [$this->labels->get($e->labelKey, ...$e->labelArguments), 'warning', null];
             }
 
-            return [$this->labels->get('message.taskCreated'), 'success'];
+            return [$this->labels->get('message.taskCreated'), 'success', null];
         }
 
         if (isset($body['repairTask'])) {
             try {
                 $this->scheduler->repair();
             } catch (SchedulerTaskException $e) {
-                return [$this->labels->get($e->labelKey, ...$e->labelArguments), 'warning'];
+                return [$this->labels->get($e->labelKey, ...$e->labelArguments), 'warning', null];
             }
 
-            return [$this->labels->get('message.taskRepaired'), 'success'];
+            return [$this->labels->get('message.taskRepaired'), 'success', null];
         }
 
         if (!isset($body['connect'])) {
-            return [null, 'info'];
+            return [null, 'info', null];
         }
 
         $hubUrl = trim((string)($body['hubUrl'] ?? ''));
         $code = trim((string)($body['code'] ?? ''));
 
         if ($hubUrl === '' || $code === '') {
-            return [$this->labels->get('message.credentialsMissing'), 'danger'];
+            return [$this->labels->get('message.credentialsMissing'), 'danger', null];
         }
 
         try {
@@ -184,27 +206,31 @@ final class ConnectionController
                 (string)($body['hubPassword'] ?? '')
             );
         } catch (HubConnectionException $e) {
-            return [$e->getMessage(), 'danger'];
+            return [$e->getMessage(), 'danger', null];
         }
+
+        $inventory = $this->inventoryBuilder->build();
 
         try {
-            $this->hubClient->pushInventory($this->inventoryBuilder->build());
+            $this->hubClient->pushInventory($inventory);
         } catch (HubConnectionException $e) {
-            return [$this->labels->get('message.connectedPushFailed', $e->getMessage()), 'warning'];
+            return [$this->labels->get('message.connectedPushFailed', $e->getMessage()), 'warning', $inventory];
         }
 
-        return [$this->labels->get('message.connected'), 'success'];
+        return [$this->labels->get('message.connected'), 'success', $inventory];
     }
 
     /**
-     * @return array{0: string, 1: string}
+     * @return array{0: string, 1: string, 2: array<string, mixed>}
      */
     private function push(): array
     {
+        $inventory = $this->inventoryBuilder->build();
+
         try {
-            $response = $this->hubClient->pushInventory($this->inventoryBuilder->build());
+            $response = $this->hubClient->pushInventory($inventory);
         } catch (HubConnectionException $e) {
-            return [$e->getMessage(), 'danger'];
+            return [$e->getMessage(), 'danger', $inventory];
         }
 
         return [
@@ -212,27 +238,62 @@ final class ConnectionController
                 ? $this->labels->get('message.pushedStored')
                 : $this->labels->get('message.pushedUnchanged'),
             'success',
+            $inventory,
         ];
     }
 
     /**
+     * One row per provider. A provider left out of this build is shown as
+     * the last push found it, and says so.
+     *
      * @param array<string, mixed> $inventory
+     * @param list<string> $skipped
      * @return list<array<string, string>>
      */
-    private function describeProviders(array $inventory): array
+    private function describeProviders(array $inventory, array $skipped): array
     {
-        $out = [];
+        $rows = [];
 
         foreach ($inventory['providers'] as $key => $result) {
-            $status = $result->getStatus();
-            $out[] = [
-                'key' => (string)$key,
-                'status' => $status,
-                'severity' => $status === 'ok' ? 'success' : ($status === 'degraded' ? 'warning' : 'danger'),
+            $rows[(string)$key] = $this->describeProvider((string)$key, $result->getStatus(), '');
+        }
+
+        $lastPush = $this->pushLog->last();
+
+        foreach ($skipped as $key) {
+            if ($lastPush !== null && isset($lastPush['providers'][$key])) {
+                $rows[$key] = $this->describeProvider(
+                    $key,
+                    $lastPush['providers'][$key]['status'],
+                    $this->labels->get('inventory.asOfLastPush', BackendUtility::datetime($lastPush['at']))
+                );
+                continue;
+            }
+
+            $rows[$key] = [
+                'key' => $key,
+                'status' => $this->labels->get('inventory.notYetRun'),
+                'severity' => 'secondary',
+                'note' => $this->labels->get('inventory.runsWithPush'),
             ];
         }
 
-        return $out;
+        ksort($rows);
+
+        return array_values($rows);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function describeProvider(string $key, string $status, string $note): array
+    {
+        return [
+            'key' => $key,
+            'status' => $status,
+            'severity' => $status === 'ok' ? 'success' : ($status === 'degraded' ? 'warning' : 'danger'),
+            'note' => $note,
+        ];
     }
 
 }
