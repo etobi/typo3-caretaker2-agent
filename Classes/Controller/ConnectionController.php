@@ -74,6 +74,7 @@ final class ConnectionController
         $variables = [
             'connected' => $this->tokenStorage->isConnected(),
             'hubUrl' => $this->tokenStorage->getHubUrl(),
+            'hubUser' => $this->tokenStorage->getHubUser(),
             'managedByEnvironment' => $this->tokenStorage->isManagedByEnvironment(),
             'agentVersion' => AgentVersion::current(),
             'providers' => $this->describeProviders($inventory),
@@ -170,7 +171,13 @@ final class ConnectionController
         }
 
         try {
-            $this->hubClient->enroll($hubUrl, $code, Origin::fromRequest($request));
+            $this->hubClient->enroll(
+                $hubUrl,
+                $code,
+                Origin::fromRequest($request),
+                trim((string)($body['hubUser'] ?? '')),
+                (string)($body['hubPassword'] ?? '')
+            );
         } catch (HubConnectionException $e) {
             return [$e->getMessage(), 'danger'];
         }

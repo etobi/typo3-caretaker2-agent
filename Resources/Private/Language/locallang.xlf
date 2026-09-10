@@ -117,6 +117,18 @@
             <trans-unit id="error.taskRemoveFailed">
                 <source>The old task could not be removed: %s</source>
             </trans-unit>
+            <trans-unit id="connect.hubUser">
+                <source>Basic Auth user (optional)</source>
+            </trans-unit>
+            <trans-unit id="connect.hubPassword">
+                <source>Basic Auth password</source>
+            </trans-unit>
+            <trans-unit id="connect.basicAuthHint">
+                <source>Only when the hub itself sits behind HTTP Basic Auth. The credentials are kept next to the token and sent with every push.</source>
+            </trans-unit>
+            <trans-unit id="connected.basicAuth">
+                <source>The hub is reached with HTTP Basic Auth as %s.</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

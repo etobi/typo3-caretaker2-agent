@@ -11,6 +11,7 @@ use Caretaker2\Agent\Http\Origin;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -40,7 +41,9 @@ final class ConnectCommand extends Command
             ->setDescription('Connects this instance to a hub')
             ->addArgument('hub-url', InputArgument::REQUIRED, 'Base URL of the hub')
             ->addArgument('code', InputArgument::REQUIRED, 'Enrollment code from the hub')
-            ->addArgument('instance-url', InputArgument::OPTIONAL, 'URL of this instance');
+            ->addArgument('instance-url', InputArgument::OPTIONAL, 'URL of this instance')
+            ->addOption('user', 'u', InputOption::VALUE_REQUIRED, 'Basic Auth user, for a hub behind HTTP Basic Auth')
+            ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Basic Auth password; CARETAKER2_HUB_PASSWORD keeps it out of the shell history');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -59,7 +62,9 @@ final class ConnectCommand extends Command
             $this->hubClient->enroll(
                 (string)$input->getArgument('hub-url'),
                 (string)$input->getArgument('code'),
-                $instanceUrl
+                $instanceUrl,
+                (string)$input->getOption('user'),
+                (string)$input->getOption('password')
             );
         } catch (HubConnectionException $e) {
             $io->error($e->getMessage());

@@ -33,24 +33,32 @@ final class HubClient
     }
 
     /**
-     * Trades the short-lived enrollment code for a lasting token
+     * Trades the short-lived enrollment code for a lasting token. Hubs that
+     * sit behind HTTP Basic Auth take a user and password along; both are
+     * kept with the token for every later push.
      */
-    public function enroll(string $hubUrl, string $code, string $instanceUrl): string
-    {
+    public function enroll(
+        string $hubUrl,
+        string $code,
+        string $instanceUrl,
+        string $hubUser = '',
+        string $hubPassword = ''
+    ): string {
         $hubUrl = rtrim(trim($hubUrl), '/');
+        $auth = $hubUser === '' ? null : [$hubUser, $hubPassword];
 
         $response = $this->send($hubUrl . self::API_BASE . '/enroll', [
             'code' => strtoupper(trim($code)),
             'instanceUrl' => $instanceUrl,
             'agentVersion' => AgentVersion::current(),
-        ]);
+        ], null, $auth);
 
         $token = $response['token'] ?? null;
         if (!is_string($token) || $token === '') {
             throw new HubConnectionException('The hub returned no token. Is the code still valid?');
         }
 
-        $this->tokenStorage->store($hubUrl, $token);
+        $this->tokenStorage->store($hubUrl, $token, $hubUser, $hubPassword);
 
         return $token;
     }
@@ -71,14 +79,18 @@ final class HubClient
             );
         }
 
-        return $this->send($hubUrl . self::API_BASE . '/inventory', $inventory, $token);
+        $hubUser = $this->tokenStorage->getHubUser();
+        $auth = $hubUser === null ? null : [$hubUser, $this->tokenStorage->getHubPassword()];
+
+        return $this->send($hubUrl . self::API_BASE . '/inventory', $inventory, $token, $auth);
     }
 
     /**
      * @param array<string, mixed> $payload
+     * @param array{0: string, 1: string}|null $auth Basic Auth user and password
      * @return array<string, mixed>
      */
-    private function send(string $url, array $payload, ?string $token = null): array
+    private function send(string $url, array $payload, ?string $token = null, ?array $auth = null): array
     {
         $headers = [
             'Content-Type' => 'application/json',
@@ -86,16 +98,27 @@ final class HubClient
             'User-Agent' => 'Caretaker2-Agent/' . AgentVersion::current(),
         ];
         if ($token !== null) {
-            $headers['Authorization'] = 'Bearer ' . $token;
+            // Basic Auth needs the Authorization header for itself, so the
+            // token moves to a header of its own in that case.
+            if ($auth === null) {
+                $headers['Authorization'] = 'Bearer ' . $token;
+            } else {
+                $headers['X-Caretaker2-Token'] = $token;
+            }
+        }
+
+        $options = [
+            'headers' => $headers,
+            'body' => (string)json_encode($payload, JSON_UNESCAPED_SLASHES),
+            'timeout' => self::TIMEOUT_SECONDS,
+            'http_errors' => false,
+        ];
+        if ($auth !== null) {
+            $options['auth'] = $auth;
         }
 
         try {
-            $response = $this->requestFactory->request($url, 'POST', [
-                'headers' => $headers,
-                'body' => (string)json_encode($payload, JSON_UNESCAPED_SLASHES),
-                'timeout' => self::TIMEOUT_SECONDS,
-                'http_errors' => false,
-            ]);
+            $response = $this->requestFactory->request($url, 'POST', $options);
         } catch (\Throwable $e) {
             throw new HubConnectionException(
                 sprintf('The hub is unreachable (%s): %s', $url, $e->getMessage()),
@@ -107,6 +130,14 @@ final class HubClient
         $status = $response->getStatusCode();
         $body = (string)$response->getBody();
         $decoded = json_decode($body, true);
+
+        if ($status === 401) {
+            throw new HubConnectionException(
+                $auth === null
+                    ? 'The hub asks for HTTP Basic Auth. Enter the credentials when connecting.'
+                    : 'The hub rejected the Basic Auth credentials.'
+            );
+        }
 
         if ($status >= 400) {
             $detail = is_array($decoded) && isset($decoded['error'])

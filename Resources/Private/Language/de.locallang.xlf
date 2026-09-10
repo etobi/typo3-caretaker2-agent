@@ -155,6 +155,22 @@
                 <source>The old task could not be removed: %s</source>
                 <target>Der alte Task ließ sich nicht entfernen: %s</target>
             </trans-unit>
+            <trans-unit id="connect.hubUser" approved="yes">
+                <source>Basic Auth user (optional)</source>
+                <target>Basic-Auth-Benutzer (optional)</target>
+            </trans-unit>
+            <trans-unit id="connect.hubPassword" approved="yes">
+                <source>Basic Auth password</source>
+                <target>Basic-Auth-Passwort</target>
+            </trans-unit>
+            <trans-unit id="connect.basicAuthHint" approved="yes">
+                <source>Only when the hub itself sits behind HTTP Basic Auth. The credentials are kept next to the token and sent with every push.</source>
+                <target>Nur wenn der Hub selbst hinter HTTP Basic Auth liegt. Die Zugangsdaten werden neben dem Token abgelegt und bei jedem Push mitgeschickt.</target>
+            </trans-unit>
+            <trans-unit id="connected.basicAuth" approved="yes">
+                <source>The hub is reached with HTTP Basic Auth as %s.</source>
+                <target>Der Hub wird mit HTTP Basic Auth als %s erreicht.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
