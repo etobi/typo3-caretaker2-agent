@@ -24,13 +24,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class ConnectionController
 {
-    /**
-     * Providers too slow for a page load: TYPO3's own checks call the
-     * instance over HTTP a dozen times. They run with a push, and the page
-     * shows what the last push found.
-     */
-    private const SKIPPED_ON_PAGE_LOAD = ['reports'];
-
     /** @var ModuleTemplateFactory */
     private $moduleTemplateFactory;
 
@@ -84,10 +77,11 @@ final class ConnectionController
             [$message, $messageSeverity, $inventory] = $this->handlePost($body, $request);
         }
 
-        // A push already built the whole inventory; a plain page load builds
-        // only what is quick and shows the rest as of the last push.
-        $skipped = $inventory === null ? self::SKIPPED_ON_PAGE_LOAD : [];
-        $inventory = $inventory ?? $this->inventoryBuilder->build($skipped);
+        // Collecting the inventory takes seconds, TYPO3's own checks call the
+        // instance over HTTP a dozen times. So the page collects nothing of
+        // its own: it shows what a push in this request delivered, otherwise
+        // what the last push found.
+        $lastPush = $inventory === null ? $this->pushLog->last() : null;
 
         $variables = [
             'connected' => $this->tokenStorage->isConnected(),
@@ -95,9 +89,11 @@ final class ConnectionController
             'hubUser' => $this->tokenStorage->getHubUser(),
             'managedByEnvironment' => $this->tokenStorage->isManagedByEnvironment(),
             'agentVersion' => AgentVersion::current(),
-            'providers' => $this->describeProviders($inventory, $skipped),
-            'skippedProviders' => implode(', ', $skipped),
-            'inventoryJson' => json_encode($inventory, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+            'providers' => $inventory !== null
+                ? $this->describeProviders($inventory)
+                : ($lastPush !== null ? $this->describeLastPush($lastPush) : []),
+            'inventoryAsOf' => $lastPush !== null ? BackendUtility::datetime($lastPush['at']) : '',
+            'inventoryJson' => $inventory !== null ? json_encode($inventory, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) : '',
             'message' => $message,
             'messageSeverity' => $messageSeverity,
             'schedulerAvailable' => $this->scheduler->isAvailable(),
@@ -243,56 +239,43 @@ final class ConnectionController
     }
 
     /**
-     * One row per provider. A provider left out of this build is shown as
-     * the last push found it, and says so.
-     *
      * @param array<string, mixed> $inventory
-     * @param list<string> $skipped
      * @return list<array<string, string>>
      */
-    private function describeProviders(array $inventory, array $skipped): array
+    private function describeProviders(array $inventory): array
     {
         $rows = [];
-
         foreach ($inventory['providers'] as $key => $result) {
-            $rows[(string)$key] = $this->describeProvider((string)$key, $result->getStatus(), '');
+            $rows[] = $this->describeProvider((string)$key, $result->getStatus());
         }
 
-        $lastPush = $this->pushLog->last();
+        return $rows;
+    }
 
-        foreach ($skipped as $key) {
-            if ($lastPush !== null && isset($lastPush['providers'][$key])) {
-                $rows[$key] = $this->describeProvider(
-                    $key,
-                    $lastPush['providers'][$key]['status'],
-                    $this->labels->get('inventory.asOfLastPush', BackendUtility::datetime($lastPush['at']))
-                );
-                continue;
-            }
-
-            $rows[$key] = [
-                'key' => $key,
-                'status' => $this->labels->get('inventory.notYetRun'),
-                'severity' => 'secondary',
-                'note' => $this->labels->get('inventory.runsWithPush'),
-            ];
+    /**
+     * @param array{providers: array<string, array{status: string}>} $lastPush
+     * @return list<array<string, string>>
+     */
+    private function describeLastPush(array $lastPush): array
+    {
+        $rows = [];
+        ksort($lastPush['providers']);
+        foreach ($lastPush['providers'] as $key => $result) {
+            $rows[] = $this->describeProvider((string)$key, $result['status']);
         }
 
-        ksort($rows);
-
-        return array_values($rows);
+        return $rows;
     }
 
     /**
      * @return array<string, string>
      */
-    private function describeProvider(string $key, string $status, string $note): array
+    private function describeProvider(string $key, string $status): array
     {
         return [
             'key' => $key,
             'status' => $status,
             'severity' => $status === 'ok' ? 'success' : ($status === 'degraded' ? 'warning' : 'danger'),
-            'note' => $note,
         ];
     }
 

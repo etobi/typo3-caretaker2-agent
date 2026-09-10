@@ -108,20 +108,12 @@
                 <target>Vollständiges Inventar ansehen</target>
             </trans-unit>
             <trans-unit id="inventory.asOfLastPush" approved="yes">
-                <source>as of the last push, %s</source>
-                <target>Stand des letzten Push, %s</target>
+                <source>State of the last push, %s. Collecting takes a moment, so this page does not do it on its own.</source>
+                <target>Stand des letzten Push, %s. Das Sammeln dauert einen Moment, deshalb macht diese Seite das nicht von sich aus.</target>
             </trans-unit>
-            <trans-unit id="inventory.notYetRun" approved="yes">
-                <source>not yet run</source>
-                <target>noch nicht gelaufen</target>
-            </trans-unit>
-            <trans-unit id="inventory.runsWithPush" approved="yes">
-                <source>runs with the push; there has been none so far</source>
-                <target>läuft mit dem Push; bisher gab es keinen</target>
-            </trans-unit>
-            <trans-unit id="inventory.previewWithout" approved="yes">
-                <source>Without %s: that part takes seconds to collect and is left out of this preview. A push sends it.</source>
-                <target>Ohne %s: dieser Teil braucht Sekunden zum Sammeln und fehlt in dieser Vorschau. Ein Push schickt ihn mit.</target>
+            <trans-unit id="inventory.noPushYet" approved="yes">
+                <source>Nothing has been sent yet. The inventory is collected with the first push.</source>
+                <target>Es wurde noch nichts gesendet. Das Inventar wird mit dem ersten Push gesammelt.</target>
             </trans-unit>
             <trans-unit id="message.disconnectManaged" approved="yes">
                 <source>The connection comes from the environment and cannot be cut here.</source>

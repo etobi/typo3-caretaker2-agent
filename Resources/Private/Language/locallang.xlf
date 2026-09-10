@@ -82,16 +82,10 @@
                 <source>Show the full inventory</source>
             </trans-unit>
             <trans-unit id="inventory.asOfLastPush">
-                <source>as of the last push, %s</source>
+                <source>State of the last push, %s. Collecting takes a moment, so this page does not do it on its own.</source>
             </trans-unit>
-            <trans-unit id="inventory.notYetRun">
-                <source>not yet run</source>
-            </trans-unit>
-            <trans-unit id="inventory.runsWithPush">
-                <source>runs with the push; there has been none so far</source>
-            </trans-unit>
-            <trans-unit id="inventory.previewWithout">
-                <source>Without %s: that part takes seconds to collect and is left out of this preview. A push sends it.</source>
+            <trans-unit id="inventory.noPushYet">
+                <source>Nothing has been sent yet. The inventory is collected with the first push.</source>
             </trans-unit>
             <trans-unit id="message.disconnectManaged">
                 <source>The connection comes from the environment and cannot be cut here.</source>

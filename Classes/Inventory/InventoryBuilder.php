@@ -25,19 +25,14 @@ final class InventoryBuilder
     }
 
     /**
-     * @param list<string> $without Provider keys to leave out, for a build
-     *                              that must be quick rather than complete
      * @return array<string, mixed>
      */
-    public function build(array $without = []): array
+    public function build(): array
     {
         $providers = [];
 
         foreach ($this->providers as $provider) {
             $key = $provider->getKey();
-            if (in_array($key, $without, true)) {
-                continue;
-            }
 
             try {
                 $providers[$key] = $provider->collect();
