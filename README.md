@@ -17,6 +17,12 @@ Or connect in the backend under *System → Caretaker2*, where the daily
 scheduler task can be created with one click. `typo3/cms-reports` is
 suggested: with it, the checks TYPO3 runs on itself are reported too.
 
+Some of those checks look at the request they run in, the HTTPS and
+`lockSSL` checks among them. The agent runs them against the address the
+instance is reached under: `TYPO3_BASE_URL` when that environment variable
+is set, otherwise the first site whose base names a host. Without either,
+those checks are left out and the hub says so.
+
 ## Read-only mirror
 
 This repository is a read-only release mirror. Development happens in a

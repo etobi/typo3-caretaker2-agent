@@ -7,14 +7,13 @@ namespace Caretaker2\Agent\Command;
 use Caretaker2\Agent\Connection\HubClient;
 use Caretaker2\Agent\Connection\HubConnectionException;
 use Caretaker2\Agent\Connection\TokenStorage;
-use Caretaker2\Agent\Http\Origin;
+use Caretaker2\Agent\Http\InstanceOrigin;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use TYPO3\CMS\Core\Site\SiteFinder;
 
 final class ConnectCommand extends Command
 {
@@ -24,15 +23,15 @@ final class ConnectCommand extends Command
     /** @var TokenStorage */
     private $tokenStorage;
 
-    /** @var SiteFinder */
-    private $siteFinder;
+    /** @var InstanceOrigin */
+    private $instanceOrigin;
 
-    public function __construct(HubClient $hubClient, TokenStorage $tokenStorage, SiteFinder $siteFinder)
+    public function __construct(HubClient $hubClient, TokenStorage $tokenStorage, InstanceOrigin $instanceOrigin)
     {
         parent::__construct();
         $this->hubClient = $hubClient;
         $this->tokenStorage = $tokenStorage;
-        $this->siteFinder = $siteFinder;
+        $this->instanceOrigin = $instanceOrigin;
     }
 
     protected function configure(): void
@@ -79,17 +78,6 @@ final class ConnectCommand extends Command
 
     private function guessInstanceUrl(): string
     {
-        $configured = getenv('TYPO3_BASE_URL');
-        if (is_string($configured) && $configured !== '') {
-            return $configured;
-        }
-
-        foreach ($this->siteFinder->getAllSites() as $site) {
-            if ($site->getBase()->getHost() !== '') {
-                return Origin::fromUri($site->getBase());
-            }
-        }
-
-        return 'https://' . (string)(getenv('HOSTNAME') ?: 'unknown');
+        return $this->instanceOrigin->find() ?? 'https://' . (string)(getenv('HOSTNAME') ?: 'unknown');
     }
 }

@@ -6,6 +6,7 @@ namespace Caretaker2\Agent\Provider;
 
 use Caretaker2\Agent\Inventory\ProviderInterface;
 use Caretaker2\Agent\Inventory\ProviderResult;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -27,12 +28,16 @@ final class ReportsProvider implements ProviderInterface
     /** @var iterable<object> */
     private $statusProviders;
 
+    /** @var ReportRequestFactory */
+    private $requestFactory;
+
     /**
      * @param iterable<object> $statusProviders
      */
-    public function __construct(iterable $statusProviders)
+    public function __construct(iterable $statusProviders, ReportRequestFactory $requestFactory)
     {
         $this->statusProviders = $statusProviders;
+        $this->requestFactory = $requestFactory;
     }
 
     public function getKey(): string
@@ -49,41 +54,49 @@ final class ReportsProvider implements ProviderInterface
             );
         }
 
-        $issues = [];
-        $checked = 0;
-        $skipped = [];
+        $request = $this->requestFactory->create();
 
         $previousLanguage = $GLOBALS['LANG'] ?? null;
         $this->useDefaultLanguage();
 
         try {
-            [$issues, $checked, $skipped] = $this->collectStatuses();
+            [$issues, $checked, $skipped, $withoutRequest] = $this->collectStatuses($request);
         } finally {
             $GLOBALS['LANG'] = $previousLanguage;
         }
 
         $data = [
+            'origin' => $request !== null ? rtrim((string)$request->getUri(), '/') : null,
             'checked' => $checked,
             'issueCount' => count($issues),
             'issues' => $issues,
             'skipped' => $skipped,
+            'withoutRequest' => $withoutRequest,
         ];
-
-        // A provider that insists on a request is a deliberate omission, not a
-        // gap: those checks are out of scope. Anything else that throws is a
-        // gap, and says so.
-        $unexpected = array_filter($skipped, static function (array $entry): bool {
-            return $entry['reason'] !== 'requires_request';
-        });
 
         // The checks judge the runtime they happen to run in, so a scheduler
         // push and a hub-triggered one disagree about some of them. They
         // describe the current state, not a change to the installation.
-        if ($unexpected !== []) {
+        if ($skipped !== []) {
             return ProviderResult::degraded(
                 $data,
                 'provider_threw',
-                sprintf('%d of TYPO3\'s own checks broke off unexpectedly.', count($unexpected)),
+                sprintf('%d of TYPO3\'s own checks broke off unexpectedly.', count($skipped)),
+                ['*']
+            );
+        }
+
+        // A check that looks at the request and got none quietly leaves out
+        // what it cannot judge, HTTPS and lockSSL among it. That is a gap,
+        // and it is named rather than passed off as an all-clear.
+        if ($withoutRequest !== []) {
+            return ProviderResult::degraded(
+                $data,
+                'no_request',
+                sprintf(
+                    '%d of TYPO3\'s own checks look at the request and ran without one, so the HTTPS checks are missing. Set TYPO3_BASE_URL or give a site an absolute base URL.',
+                    count($withoutRequest)
+                ),
                 ['*']
             );
         }
@@ -92,27 +105,31 @@ final class ReportsProvider implements ProviderInterface
     }
 
     /**
-     * @return array{0: list<array<string, string>>, 1: int, 2: list<array<string, string>>}
+     * @return array{0: list<array<string, string>>, 1: int, 2: list<array<string, string>>, 3: list<string>}
      */
-    private function collectStatuses(): array
+    private function collectStatuses(?ServerRequestInterface $request): array
     {
         $issues = [];
         $checked = 0;
         $skipped = [];
+        $withoutRequest = [];
 
         foreach ($this->allStatusProviders() as $entry) {
             $provider = $entry['provider'];
+            $wantsRequest = $provider instanceof RequestAwareStatusProviderInterface;
+
+            if ($wantsRequest && $request === null) {
+                $withoutRequest[] = get_class($provider);
+            }
 
             try {
-                $statuses = $provider->getStatus();
+                $statuses = $wantsRequest ? $provider->getStatus($request) : $provider->getStatus();
             } catch (\Throwable $e) {
                 // Named rather than swallowed: the hub must be able to see what
                 // was not looked at.
                 $skipped[] = [
                     'provider' => get_class($provider),
-                    'reason' => $provider instanceof RequestAwareStatusProviderInterface
-                        ? 'requires_request'
-                        : 'threw',
+                    'reason' => $wantsRequest && $request === null ? 'requires_request' : 'threw',
                     'message' => $e->getMessage(),
                 ];
                 continue;
@@ -136,7 +153,7 @@ final class ReportsProvider implements ProviderInterface
             }
         }
 
-        return [$issues, $checked, $skipped];
+        return [$issues, $checked, $skipped, $withoutRequest];
     }
 
     /**
