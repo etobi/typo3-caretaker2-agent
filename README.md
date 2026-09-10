@@ -14,8 +14,10 @@ vendor/bin/typo3 caretaker2:push --print   # what would leave this instance
 ```
 
 Or connect in the backend under *System → Caretaker2*, where the daily
-scheduler task can be created with one click. `typo3/cms-reports` is
-suggested: with it, the checks TYPO3 runs on itself are reported too.
+scheduler task can be created with one click. Connecting sends a first
+inventory right away, without the checks TYPO3 runs on itself; those take
+a while and follow with the next push. `typo3/cms-reports` is suggested:
+with it, those checks are reported too.
 
 Some of those checks look at the request they run in, the HTTPS and
 `lockSSL` checks among them. The agent runs them against the address the

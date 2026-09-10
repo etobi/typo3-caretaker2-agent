@@ -205,7 +205,9 @@ final class ConnectionController
             return [$e->getMessage(), 'danger', null];
         }
 
-        $inventory = $this->inventoryBuilder->build();
+        // A quick first push, so the hub shows the instance at once and the
+        // page comes back in seconds rather than after a minute of checks.
+        $inventory = $this->inventoryBuilder->buildFirst();
 
         try {
             $this->hubClient->pushInventory($inventory);

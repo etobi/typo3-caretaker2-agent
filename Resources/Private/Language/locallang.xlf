@@ -103,7 +103,7 @@
                 <source>Connected, but the first push failed: %s</source>
             </trans-unit>
             <trans-unit id="message.connected">
-                <source>Connected. The inventory has already been reported.</source>
+                <source>Connected. A first inventory has been reported; TYPO3's own checks follow with the next push.</source>
             </trans-unit>
             <trans-unit id="message.pushedStored">
                 <source>Inventory reported. The hub stored a change.</source>

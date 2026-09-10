@@ -136,8 +136,8 @@
                 <target>Verbunden, aber der erste Push ist fehlgeschlagen: %s</target>
             </trans-unit>
             <trans-unit id="message.connected" approved="yes">
-                <source>Connected. The inventory has already been reported.</source>
-                <target>Verbunden. Das Inventar wurde bereits gemeldet.</target>
+                <source>Connected. A first inventory has been reported; TYPO3's own checks follow with the next push.</source>
+                <target>Verbunden. Ein erstes Inventar wurde gemeldet; die TYPO3-eigenen Prüfungen folgen mit dem nächsten Push.</target>
             </trans-unit>
             <trans-unit id="message.pushedStored" approved="yes">
                 <source>Inventory reported. The hub stored a change.</source>
