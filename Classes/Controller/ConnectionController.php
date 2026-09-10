@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Caretaker2\Agent\Controller;
 
+use Caretaker2\Agent\AgentVersion;
 use Caretaker2\Agent\Backend\Labels;
 use Caretaker2\Agent\Connection\HubClient;
 use Caretaker2\Agent\Connection\HubConnectionException;
@@ -74,7 +75,7 @@ final class ConnectionController
             'connected' => $this->tokenStorage->isConnected(),
             'hubUrl' => $this->tokenStorage->getHubUrl(),
             'managedByEnvironment' => $this->tokenStorage->isManagedByEnvironment(),
-            'agentVersion' => InventoryBuilder::AGENT_VERSION,
+            'agentVersion' => AgentVersion::current(),
             'providers' => $this->describeProviders($inventory),
             'inventoryJson' => json_encode($inventory, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
             'message' => $message,

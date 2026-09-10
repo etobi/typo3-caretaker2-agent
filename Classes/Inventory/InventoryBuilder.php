@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Caretaker2\Agent\Inventory;
 
+use Caretaker2\Agent\AgentVersion;
+
 final class InventoryBuilder
 {
     /**
      * Only rises on breaking changes to the format.
      */
     public const SCHEMA_VERSION = 1;
-
-    public const AGENT_VERSION = '0.1.0';
 
     /** @var iterable<ProviderInterface> */
     private $providers;
@@ -50,7 +50,7 @@ final class InventoryBuilder
             'schemaVersion' => self::SCHEMA_VERSION,
             'generatedAt' => (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))
                 ->format(\DateTimeInterface::ATOM),
-            'agent' => ['version' => self::AGENT_VERSION],
+            'agent' => ['version' => AgentVersion::current()],
             'providers' => $providers,
         ];
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Caretaker2\Agent\Connection;
 
-use Caretaker2\Agent\Inventory\InventoryBuilder;
+use Caretaker2\Agent\AgentVersion;
 use TYPO3\CMS\Core\Http\RequestFactory;
 
 /**
@@ -42,7 +42,7 @@ final class HubClient
         $response = $this->send($hubUrl . self::API_BASE . '/enroll', [
             'code' => strtoupper(trim($code)),
             'instanceUrl' => $instanceUrl,
-            'agentVersion' => InventoryBuilder::AGENT_VERSION,
+            'agentVersion' => AgentVersion::current(),
         ]);
 
         $token = $response['token'] ?? null;
@@ -83,7 +83,7 @@ final class HubClient
         $headers = [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-            'User-Agent' => 'Caretaker2-Agent/' . InventoryBuilder::AGENT_VERSION,
+            'User-Agent' => 'Caretaker2-Agent/' . AgentVersion::current(),
         ];
         if ($token !== null) {
             $headers['Authorization'] = 'Bearer ' . $token;
