@@ -76,6 +76,48 @@ final class SchedulerTaskInstaller
     }
 
     /**
+     * @throws SchedulerTaskException
+     */
+    public function install(): void
+    {
+        if (!$this->isAvailable()) {
+            throw new SchedulerTaskException($this->labels->get('error.schedulerMissing'));
+        }
+
+        if ($this->exists()) {
+            throw new SchedulerTaskException($this->labels->get('error.taskExists'));
+        }
+
+        $task = GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Task\ExecuteSchedulableCommandTask::class);
+        $task->setDescription('Reports the inventory of this instance to the Caretaker2 hub.');
+
+        if ($this->usesTaskTypeApi()) {
+            $task->setTaskType(self::COMMAND);
+            $task->setTaskParameters(['commandIdentifier' => self::COMMAND]);
+        } else {
+            $task->setCommandIdentifier(self::COMMAND);
+        }
+
+        $start = $this->nextNightlyStart();
+
+        if (method_exists($task, 'registerRecurringExecution')) {
+            $task->registerRecurringExecution($start, self::INTERVAL_SECONDS);
+        } else {
+            $task->setExecution(
+                \TYPO3\CMS\Scheduler\Execution::createRecurringExecution(
+                    $start,
+                    0,
+                    0,
+                    false,
+                    sprintf('%d 3 * * *', (int)date('i', $start))
+                )
+            );
+        }
+
+        $this->persist($task);
+    }
+
+    /**
      * Removes the task and creates it again. The only repair that works across
      * all four versions — editing an execution in place needs a different API
      * in each of them.
@@ -153,48 +195,6 @@ final class SchedulerTaskInstaller
         } catch (\Throwable $e) {
             throw new SchedulerTaskException($this->labels->get('error.taskRemoveFailed', $e->getMessage()), 0, $e);
         }
-    }
-
-    /**
-     * @throws SchedulerTaskException
-     */
-    public function install(): void
-    {
-        if (!$this->isAvailable()) {
-            throw new SchedulerTaskException($this->labels->get('error.schedulerMissing'));
-        }
-
-        if ($this->exists()) {
-            throw new SchedulerTaskException($this->labels->get('error.taskExists'));
-        }
-
-        $task = GeneralUtility::makeInstance(\TYPO3\CMS\Scheduler\Task\ExecuteSchedulableCommandTask::class);
-        $task->setDescription('Reports the inventory of this instance to the Caretaker2 hub.');
-
-        if ($this->usesTaskTypeApi()) {
-            $task->setTaskType(self::COMMAND);
-            $task->setTaskParameters(['commandIdentifier' => self::COMMAND]);
-        } else {
-            $task->setCommandIdentifier(self::COMMAND);
-        }
-
-        $start = $this->nextNightlyStart();
-
-        if (method_exists($task, 'registerRecurringExecution')) {
-            $task->registerRecurringExecution($start, self::INTERVAL_SECONDS);
-        } else {
-            $task->setExecution(
-                \TYPO3\CMS\Scheduler\Execution::createRecurringExecution(
-                    $start,
-                    0,
-                    0,
-                    false,
-                    sprintf('%d 3 * * *', (int)date('i', $start))
-                )
-            );
-        }
-
-        $this->persist($task);
     }
 
     /**

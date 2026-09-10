@@ -24,20 +24,6 @@ final class ScheduleCommand extends Command
         $this->installer = $installer;
     }
 
-    private function ensureBackendUser(): void
-    {
-        if (($GLOBALS['BE_USER']->user['admin'] ?? 0) === 1) {
-            return;
-        }
-
-        Bootstrap::initializeBackendUser(CommandLineUserAuthentication::class);
-
-        $user = $GLOBALS['BE_USER'] ?? null;
-        if ($user instanceof CommandLineUserAuthentication) {
-            $user->authenticate();
-        }
-    }
-
     protected function configure(): void
     {
         $this->setDescription('Creates the daily scheduler task for the push');
@@ -59,5 +45,19 @@ final class ScheduleCommand extends Command
         $io->success('Daily scheduler task created.');
 
         return Command::SUCCESS;
+    }
+
+    private function ensureBackendUser(): void
+    {
+        if (($GLOBALS['BE_USER']->user['admin'] ?? 0) === 1) {
+            return;
+        }
+
+        Bootstrap::initializeBackendUser(CommandLineUserAuthentication::class);
+
+        $user = $GLOBALS['BE_USER'] ?? null;
+        if ($user instanceof CommandLineUserAuthentication) {
+            $user->authenticate();
+        }
     }
 }
