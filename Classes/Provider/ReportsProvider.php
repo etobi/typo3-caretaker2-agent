@@ -23,7 +23,7 @@ final class ReportsProvider implements ProviderInterface
         2 => 'error',
     ];
 
-    private const MAX_MESSAGE_LENGTH = 500;
+    private const MAX_MESSAGE_LENGTH = 2000;
 
     /** @var iterable<object> */
     private $statusProviders;
@@ -237,9 +237,41 @@ final class ReportsProvider implements ProviderInterface
         return get_class($provider);
     }
 
+    /**
+     * The message as text, with what the markup said kept in words: a line
+     * per paragraph or list item, a dash in front of list items, the
+     * address next to a link's label. No tag survives, so the hub can show
+     * it escaped without losing the shape.
+     */
     private function plainText(string $message): string
     {
-        $text = trim((string)preg_replace('/\s+/', ' ', strip_tags($message)));
+        $text = $message;
+
+        // A button belongs to the reports module; its label alone is noise.
+        $text = (string)preg_replace('/<button\b[^>]*>.*?<\/button>/is', '', $text);
+
+        $text = (string)preg_replace_callback(
+            '/<a\s[^>]*href=(["\'])(.*?)\1[^>]*>(.*?)<\/a>/is',
+            static function (array $match): string {
+                $href = trim(html_entity_decode($match[2], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $label = trim(strip_tags($match[3]));
+
+                if (stripos($href, 'http://') !== 0 && stripos($href, 'https://') !== 0) {
+                    return $label;
+                }
+
+                return $label === '' || $label === $href ? $href : $label . ' (' . $href . ')';
+            },
+            $text
+        );
+
+        $text = (string)preg_replace('/<li\b[^>]*>/i', "\n- ", $text);
+        $text = (string)preg_replace('/<br\s*\/?>/i', "\n", $text);
+        $text = (string)preg_replace('/<\/(p|div|li|ul|ol|h[1-6]|tr|table|blockquote|pre)>/i', "\n", $text);
+        $text = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = (string)preg_replace('/[^\S\n]+/u', ' ', $text);
+        $text = (string)preg_replace('/ *\n */', "\n", $text);
+        $text = trim((string)preg_replace('/\n{2,}/', "\n", $text));
 
         return mb_strlen($text) > self::MAX_MESSAGE_LENGTH
             ? mb_substr($text, 0, self::MAX_MESSAGE_LENGTH) . '…'
