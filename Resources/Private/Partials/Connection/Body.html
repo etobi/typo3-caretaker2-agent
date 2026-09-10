@@ -1,5 +1,9 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
       data-namespace-typo3-fluid="true">
+
+    <f:asset.script identifier="caretaker2-agent-submit" src="EXT:caretaker2_agent/Resources/Public/JavaScript/Submit.js" defer="defer"/>
+    <template id="caretaker2-spinner"><core:icon identifier="spinner-circle" size="small"/></template>
 
     <h1>Caretaker2</h1>
 
@@ -69,7 +73,7 @@
                 </div>
             </div>
 
-            <form method="post" class="mb-4">
+            <form method="post" class="mb-4" data-caretaker2-busy="1">
                 <button type="submit" name="push" value="1" class="btn btn-primary">
                     <f:translate key="LLL:EXT:caretaker2_agent/Resources/Private/Language/locallang.xlf:button.push"/>
                 </button>
@@ -85,7 +89,7 @@
                 </div>
             </div>
 
-            <form method="post" class="mb-4">
+            <form method="post" class="mb-4" data-caretaker2-busy="1">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
