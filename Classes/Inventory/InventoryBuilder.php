@@ -54,12 +54,4 @@ final class InventoryBuilder
             'providers' => $providers,
         ];
     }
-
-    public function fingerprint(array $inventory): string
-    {
-        $relevant = $inventory;
-        unset($relevant['generatedAt']);
-
-        return hash('sha256', (string)json_encode($relevant));
-    }
 }

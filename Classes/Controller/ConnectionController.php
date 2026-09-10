@@ -79,7 +79,6 @@ final class ConnectionController
             'inventoryJson' => json_encode($inventory, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
             'message' => $message,
             'messageSeverity' => $messageSeverity,
-            'suggestedHubUrl' => $this->tokenStorage->getHubUrl(),
             'schedulerAvailable' => $this->scheduler->isAvailable(),
             'schedulerTaskExists' => $this->scheduler->exists(),
             'schedulerTaskRecurring' => $this->scheduler->isRecurring(),
